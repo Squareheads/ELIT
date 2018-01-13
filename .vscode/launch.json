@@ -1,0 +1,41 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceRoot}/src/main.tsx",
+      "stopOnEntry": false,
+      "args": [],
+      "cwd": "${workspaceRoot}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "preLaunchTask": "build",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "runtimeArgs": [
+        "--enable-logging"
+      ],
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "env": {},
+      "outFiles": [
+        "${workspaceRoot}/dist/**/*.js"
+      ]
+    },
+    {
+      "name": "Attach",
+      "type": "node",
+      "request": "attach",
+      "port": 5858,
+      "address": "localhost",
+      "restart": false,
+      "sourceMaps": false,
+      "outFiles": [],
+      "localRoot": "${workspaceRoot}",
+      "remoteRoot": null
+  }
+  ]
+}

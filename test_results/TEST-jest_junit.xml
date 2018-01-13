@@ -1,0 +1,14 @@
+<testsuites name="jest tests">
+  <testsuite name="/__tests__/CharacterNameIDStore_tests.js" errors="0" failures="0" skipped="0" timestamp="2017-12-05T18:26:56" time="0.164" tests="1">
+    <testcase classname="ChracterNameIDStore-calling store starts transaction" name="ChracterNameIDStore-calling store starts transaction" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="/__tests__/gui_tests.js" errors="0" failures="0" skipped="0" timestamp="2017-12-05T18:26:57" time="0.03" tests="1">
+    <testcase classname="GUI-PlaceHolderPassingTest" name="GUI-PlaceHolderPassingTest" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="/__tests__/host_tests.js" errors="0" failures="0" skipped="0" timestamp="2017-12-05T18:26:57" time="0.021" tests="1">
+    <testcase classname="Host-PlaceHolderPassingTest" name="Host-PlaceHolderPassingTest" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

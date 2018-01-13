@@ -1,0 +1,51 @@
+//multi chars
+<?xml version='1.0' encoding='UTF-8'?>
+<eveapi version="2">
+  <currentTime>2017-12-11 08:41:01</currentTime>
+  <result>
+    <rowset name="characters" key="characterID" columns="name,characterID">
+      <row name="Kellyl" characterID="580797163" />
+      <row name="Sp4m" characterID="780702065" />
+    </rowset>
+  </result>
+  <cachedUntil>2018-01-11 08:41:01</cachedUntil>
+</eveapi>
+
+
+//single char
+<?xml version='1.0' encoding='UTF-8'?>
+<eveapi version="2">
+  <currentTime>2017-12-11 08:41:26</currentTime>
+  <result>
+    <rowset name="characters" key="characterID" columns="name,characterID">
+      <row name="Kellyl" characterID="580797163" />
+    </rowset>
+  </result>
+  <cachedUntil>2018-01-11 08:41:26</cachedUntil>
+</eveapi>
+
+
+//missing char
+<?xml version='1.0' encoding='UTF-8'?>
+<eveapi version="2">
+  <currentTime>2017-12-11 08:41:48</currentTime>
+  <result>
+    <rowset name="characters" key="characterID" columns="name,characterID">
+      <row name="a" characterID="0" />
+    </rowset>
+  </result>
+  <cachedUntil>2018-01-11 08:41:48</cachedUntil>
+</eveapi>
+
+//multi chars with one missing
+<?xml version='1.0' encoding='UTF-8'?>
+<eveapi version="2">
+  <currentTime>2017-12-11 08:42:16</currentTime>
+  <result>
+    <rowset name="characters" key="characterID" columns="name,characterID">
+      <row name="a" characterID="0" />
+      <row name="Kellyl" characterID="580797163" />
+    </rowset>
+  </result>
+  <cachedUntil>2018-01-11 08:42:16</cachedUntil>
+</eveapi>
