@@ -3,6 +3,7 @@
 
 A tool to help you gather intel from local in Eve Online
 
+![Demo.gif](https://github.com/squareheads/ELIT/raw/master/Demo.gif)
 
 ## Building
 
@@ -10,7 +11,6 @@ I use yarn as my package manager, so install node (I am using 9.2.0) and yarn, t
 yarn install
 yarn build
 yarn start
-
 ## Development
 
 I use Visual Studio Code, the project configurations are included in the repo.
