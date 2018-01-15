@@ -11,49 +11,53 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
   }
 
   async viewModel(data: ICharacterKillData[]): Promise<IKillDataViewModel> {
-    return new Promise<IKillDataViewModel>(async (resolve, _reject) => {
-      if (data.length === 0) {
-        resolve({ characters: [] })
-        return
-      }
-      const characterIDs = data.map((kill): number => {
-        return kill.id
-      })
+    return new Promise<IKillDataViewModel>(async (resolve, reject) => {
+      try {
+        if (data.length === 0) {
+          resolve({ characters: [] })
+          return
+        }
+        const characterIDs = data.map((kill): number => {
+          return kill.id
+        })
 
-      const affiliations: Collections.Dictionary<number,ICharacterAffiliationInfo> = await this.affiliationResolver.getAffiliations(characterIDs)
+        const affiliations: Collections.Dictionary<number,ICharacterAffiliationInfo> = await this.affiliationResolver.getAffiliations(characterIDs)
 
-      const characters: ICharacterKillDataViewModel[] = data.map((value: ICharacterKillData): ICharacterKillDataViewModel => {
-        return this.characterViewModel(value, affiliations)
-      })
+        const characters: ICharacterKillDataViewModel[] = data.map((value: ICharacterKillData): ICharacterKillDataViewModel => {
+          return this.characterViewModel(value, affiliations)
+        })
 
-      const charactersInAlliance = characters.filter((character) => {
+        const charactersInAlliance = characters.filter((character) => {
         return character.allianceName !== undefined && character.allianceName !== ''
       })
       .sort((a, b): number => {
         return (a.allianceName || '') > (b.allianceName || '') ? -1 : 1
       })
 
-      const charactersNotInAlliance = characters.filter((character) => {
+        const charactersNotInAlliance = characters.filter((character) => {
         return character.allianceName === undefined || character.allianceName === ''
       })
       .sort((a, b): number => {
         return (a.corpName || '') > (b.corpName || '') ? -1 : 1
       })
 
-      const orderedCharacters: ICharacterKillDataViewModel[] = [].concat.apply(charactersInAlliance, charactersNotInAlliance)
-      const zkillStatistics: Collections.Dictionary<number, IZKillStatisticsItem> = await this.statisticsFetcher.fetchStatistics(characterIDs)
-      orderedCharacters.forEach((character) => {
-        const theCharacter = zkillStatistics.getValue(character.id)
-        if (theCharacter) {
-          character.dangerRatio = theCharacter.dangerRatio
-          character.gangRatio = theCharacter.gangRatio
-        }
-      })
+        const orderedCharacters: ICharacterKillDataViewModel[] = [].concat.apply(charactersInAlliance, charactersNotInAlliance)
+        const zkillStatistics: Collections.Dictionary<number, IZKillStatisticsItem> = await this.statisticsFetcher.fetchStatistics(characterIDs)
+        orderedCharacters.forEach((character) => {
+          const theCharacter = zkillStatistics.getValue(character.id)
+          if (theCharacter) {
+            character.dangerRatio = theCharacter.dangerRatio
+            character.gangRatio = theCharacter.gangRatio
+          }
+        })
 
-      const viewModel: IKillDataViewModel = {
-        characters: orderedCharacters
+        const viewModel: IKillDataViewModel = {
+          characters: orderedCharacters
+        }
+        resolve(viewModel)
+      } catch (reason) {
+        reject(reason)
       }
-      resolve(viewModel)
     })
   }
 

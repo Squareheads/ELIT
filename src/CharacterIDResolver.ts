@@ -11,40 +11,44 @@ export class CharacterIDResolver implements ICharacterIDResolver {
   }
 
   async resolveIDs(IDs: number[]): Promise<IResolvedCharacter[]> {
-    const returningPromise = new Promise<IResolvedCharacter[]>(async (resolve, _reject) => {
-      const cachedCharacters = await this.characterNameIDStore.getValuesByID(IDs)
-      const cachedIDs = cachedCharacters.map((resolved: IResolvedCharacter): number => {
-        return resolved.id
-      })
-      const cachedResolvedCharacters = cachedCharacters.map((cachedID: INameIDStorable): IResolvedCharacter => {
-        return { id: cachedID.id, name: cachedID.name }
-      })
+    const returningPromise = new Promise<IResolvedCharacter[]>(async (resolve, reject) => {
+      try {
+        const cachedCharacters = await this.characterNameIDStore.getValuesByID(IDs)
+        const cachedIDs = cachedCharacters.map((resolved: IResolvedCharacter): number => {
+          return resolved.id
+        })
+        const cachedResolvedCharacters = cachedCharacters.map((cachedID: INameIDStorable): IResolvedCharacter => {
+          return { id: cachedID.id, name: cachedID.name }
+        })
 
-      const idsExcludingCached = IDs.filter((value: number): boolean => {
-        const containsId = cachedIDs.indexOf(value) !== -1
-        return !containsId
-      })
+        const idsExcludingCached = IDs.filter((value: number): boolean => {
+          const containsId = cachedIDs.indexOf(value) !== -1
+          return !containsId
+        })
 
-      if (idsExcludingCached.length === 0) {
-        resolve(cachedResolvedCharacters)
-        return
-      }
-      const response = await this.universeApi.postUniverseNames(idsExcludingCached)
-      const characters: Array<PostUniverseNames200Ok> = response.body
+        if (idsExcludingCached.length === 0) {
+          resolve(cachedResolvedCharacters)
+          return
+        }
+        const response = await this.universeApi.postUniverseNames(idsExcludingCached)
+        const characters: Array<PostUniverseNames200Ok> = response.body
 
-      let resolvedCharacters: IResolvedCharacter[] = characters.map((character) => {
+        let resolvedCharacters: IResolvedCharacter[] = characters.map((character) => {
         return { name: character.name, id: character.id || 0 }
       }).filter((character: IResolvedCharacter) => {
         return character.id !== 0
       })
-      this.characterNameIDStore.store(resolvedCharacters)
-      resolve(cachedResolvedCharacters.concat(resolvedCharacters))
+        this.characterNameIDStore.store(resolvedCharacters)
+        resolve(cachedResolvedCharacters.concat(resolvedCharacters))
+      } catch (reason) {
+        reject(reason)
+      }
     })
 
     return returningPromise
   }
 
-  async resolveNames(name: string[]): Promise<IResolvedCharacter[]> {
+  async resolveNames(name: string[]): Promise < IResolvedCharacter[] > {
 
     return new Promise<IResolvedCharacter[]>(async (resolve, reject) => {
 
@@ -81,7 +85,7 @@ export class CharacterIDResolver implements ICharacterIDResolver {
         resolve(cachedResolvedCharacters.concat(resolvedCharacters))
 
       } catch (error) {
-        reject('resolveNames failed: ' + error)
+        reject('resolveNames failed: ' + JSON.stringify(error))
       }
     })
   }

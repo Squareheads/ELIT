@@ -53,73 +53,77 @@ export default class KillFetcher implements IKillFetcher {
   }
 
   private async killDataForCharacter(character: IResolvedCharacter, killData: IZKillboardKillmail[]): Promise<ICharacterKillData> {
-    return new Promise<ICharacterKillData>(async (resolve, _reject) => {
-      let rawLosses = (killData || []).filter((kill: IZKillboardKillmail): boolean => {
-        return kill.victim.character_id === character.id
-      })
-      let rawKills = (killData || []).filter((kill: IZKillboardKillmail): boolean => {
-        for (const attacker in kill.attackers) {
-          if (kill.attackers.hasOwnProperty(attacker)) {
-            const element = kill.attackers[attacker]
-            if (element.character_id === character.id) {
-              return true
+    return new Promise<ICharacterKillData>(async (resolve, reject) => {
+      try {
+        let rawLosses = (killData || []).filter((kill: IZKillboardKillmail): boolean => {
+          return kill.victim.character_id === character.id
+        })
+        let rawKills = (killData || []).filter((kill: IZKillboardKillmail): boolean => {
+          for (const attacker in kill.attackers) {
+            if (kill.attackers.hasOwnProperty(attacker)) {
+              const element = kill.attackers[attacker]
+              if (element.character_id === character.id) {
+                return true
+              }
             }
           }
-        }
-        return false
-      })
+          return false
+        })
 
-      let rawIdsToResolve: number[] = []
+        let rawIdsToResolve: number[] = []
 
-      rawLosses.forEach((killmail: IZKillboardKillmail) => {
-        if (killmail.victim.character_id) {
-          rawIdsToResolve.push(killmail.victim.character_id)
-        }
-        killmail.attackers.forEach((attacker: IZKillboardAttacker) => {
-          if (attacker.character_id) {
-            rawIdsToResolve.push(attacker.character_id)
+        rawLosses.forEach((killmail: IZKillboardKillmail) => {
+          if (killmail.victim.character_id) {
+            rawIdsToResolve.push(killmail.victim.character_id)
+          }
+          killmail.attackers.forEach((attacker: IZKillboardAttacker) => {
+            if (attacker.character_id) {
+              rawIdsToResolve.push(attacker.character_id)
+            }
+          })
+        })
+
+        rawKills.forEach((killmail: IZKillboardKillmail) => {
+          if (killmail.victim.character_id) {
+            rawIdsToResolve.push(killmail.victim.character_id)
+          }
+          killmail.attackers.forEach((attacker: IZKillboardAttacker) => {
+            if (attacker.character_id) {
+              rawIdsToResolve.push(attacker.character_id)
+            }
+          })
+        })
+
+        const idsToResolve = Array.from(new Set(rawIdsToResolve))
+
+        const resolvedCharacters = await this.characterIDResolver.resolveIDs(idsToResolve)
+        resolvedCharacters.push(character)
+        let processedLosses = rawLosses.map((rawKillmail: IZKillboardKillmail): ICharacterKillmail => {
+          return {
+            killmailID: rawKillmail.killmail_id,
+            killmailTime: new Date(rawKillmail.killmail_time),
+            solarSystem: this.kspaceDB.nameForSolarSystemID(rawKillmail.solar_system_id),
+            victim: this.enrichedVictim(rawKillmail.victim, resolvedCharacters),
+            attackers: []
           }
         })
-      })
-
-      rawKills.forEach((killmail: IZKillboardKillmail) => {
-        if (killmail.victim.character_id) {
-          rawIdsToResolve.push(killmail.victim.character_id)
-        }
-        killmail.attackers.forEach((attacker: IZKillboardAttacker) => {
-          if (attacker.character_id) {
-            rawIdsToResolve.push(attacker.character_id)
+        let processedKills = rawKills.map((rawKillmail: IZKillboardKillmail): ICharacterKillmail => {
+          const attackers = rawKillmail.attackers.map((attacker: IZKillboardAttacker): ICharacterKillmailAttacker => {
+            return this.enrichedAttacker(attacker, resolvedCharacters)
+          })
+          return {
+            killmailID: rawKillmail.killmail_id,
+            killmailTime: new Date(rawKillmail.killmail_time),
+            solarSystem: this.kspaceDB.nameForSolarSystemID(rawKillmail.solar_system_id),
+            victim: this.enrichedVictim(rawKillmail.victim, resolvedCharacters),
+            attackers: attackers
           }
         })
-      })
 
-      const idsToResolve = Array.from(new Set(rawIdsToResolve))
-
-      const resolvedCharacters = await this.characterIDResolver.resolveIDs(idsToResolve)
-      resolvedCharacters.push(character)
-      let processedLosses = rawLosses.map((rawKillmail: IZKillboardKillmail): ICharacterKillmail => {
-        return {
-          killmailID: rawKillmail.killmail_id,
-          killmailTime: new Date(rawKillmail.killmail_time),
-          solarSystem: this.kspaceDB.nameForSolarSystemID(rawKillmail.solar_system_id),
-          victim: this.enrichedVictim(rawKillmail.victim, resolvedCharacters),
-          attackers: []
-        }
-      })
-      let processedKills = rawKills.map((rawKillmail: IZKillboardKillmail): ICharacterKillmail => {
-        const attackers = rawKillmail.attackers.map((attacker: IZKillboardAttacker): ICharacterKillmailAttacker => {
-          return this.enrichedAttacker(attacker, resolvedCharacters)
-        })
-        return {
-          killmailID: rawKillmail.killmail_id,
-          killmailTime: new Date(rawKillmail.killmail_time),
-          solarSystem: this.kspaceDB.nameForSolarSystemID(rawKillmail.solar_system_id),
-          victim: this.enrichedVictim(rawKillmail.victim, resolvedCharacters),
-          attackers: attackers
-        }
-      })
-
-      resolve({ id: character.id, name: character.name, losses: processedLosses, kills: processedKills })
+        resolve({ id: character.id, name: character.name, losses: processedLosses, kills: processedKills })
+      } catch (reason) {
+        reject(reason)
+      }
     })
   }
 
