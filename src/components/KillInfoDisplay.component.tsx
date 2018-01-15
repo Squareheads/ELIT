@@ -123,6 +123,7 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
 
   private handleNameShipPopoverClick(characterIndex: number, ship: IFlownShip) {
     const character = this.state.viewModel.characters[characterIndex]
+    console.log('handle ship pick ' + ship + ' from ' + character.name + ' (' + character.id + ')')
   }
   private handleShipNameClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
