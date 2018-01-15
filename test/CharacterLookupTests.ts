@@ -3,46 +3,23 @@ import 'mocha'
 import * as chai from 'chai'
 import { CharacterLookup } from '../src/CharacterLookup'
 import * as mocks from '../mocks/mocks'
-import APIToken from '../src/APITokenModel'
 
 describe('CharacterLookup', () => {
-  let tokenStore: mocks.MockAPITokenStore
   let characterIDResolver: mocks.MockCharacterIDResolver
   let characterLookup: CharacterLookup
   let killFetcher: mocks.MockKillFetcher
 
   beforeEach(() => {
-    tokenStore = new mocks.MockAPITokenStore()
     characterIDResolver = new mocks.MockCharacterIDResolver()
     killFetcher = new mocks.MockKillFetcher()
-    characterLookup = new CharacterLookup(tokenStore, characterIDResolver, killFetcher)
-    tokenStore.getTokenCallCount = 0
+    characterLookup = new CharacterLookup(characterIDResolver, killFetcher)
     characterIDResolver.capturedNames = []
-    tokenStore.tokenToReturn = new APIToken('key', 'code')
     characterIDResolver.charactersToReturn = [
       { name: 'test', id: 7 }
     ]
     killFetcher.killsToReturn = [
       { id: 1, losses: [], kills: [], name: 'name' }
     ]
-  }),
-
-  it('Should get a token when lookupCharacters is called', () => {
-    let capturedCharacters: ICharacterKillData[] = []
-    let capturedError: any
-
-    characterLookup.lookupCharacters('foo')
-    .then((values: ICharacterKillData[]) => {
-      capturedCharacters = values
-    })
-    .catch((reason) => {
-      capturedError = reason
-    })
-
-    chai.assert.isArray(capturedCharacters)
-    chai.assert.isUndefined(capturedError)
-
-    chai.assert.equal(tokenStore.getTokenCallCount, 1)
   }),
 
   it('Should get ids for single characters', () => {

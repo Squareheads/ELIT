@@ -145,6 +145,7 @@ export default class KillFetcher implements IKillFetcher {
       finalBlow: attacker.final_blow,
       securityStatus: attacker.security_status,
       shipType: this.typeDB.nameForTypeID(attacker.ship_type_id),
+      shipId: attacker.ship_type_id,
       weaponType: weaponType
     }
   }
@@ -167,6 +168,7 @@ export default class KillFetcher implements IKillFetcher {
       coroporationID: victim.corporation_id || -1,
       damageTaken: victim.damage_taken,
       shipType: this.typeDB.nameForTypeID(victim.ship_type_id),
+      shipId: victim.ship_type_id,
       items: items
     }
   }

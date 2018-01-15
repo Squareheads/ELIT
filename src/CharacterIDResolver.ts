@@ -1,13 +1,15 @@
+import { PostUniverseIdsCharacter, PostUniverseNames200Ok } from 'eve-online-esi'
+
 export class CharacterIDResolver implements ICharacterIDResolver {
 
-  apiStore: IAPITokenStore
-  connectionManager: IConnectionManager
-  characterNameIDStore: INameIDStore
-  constructor(apiStore: IAPITokenStore, connectionManager: IConnectionManager, characterNameIDStore: INameIDStore) {
-    this.apiStore = apiStore
-    this.connectionManager = connectionManager
+  private universeApi: IUniverseApi
+  private characterNameIDStore: INameIDStore
+
+  constructor(characterNameIDStore: INameIDStore, universeApi: IUniverseApi) {
     this.characterNameIDStore = characterNameIDStore
+    this.universeApi = universeApi
   }
+
   async resolveIDs(IDs: number[]): Promise<IResolvedCharacter[]> {
     const returningPromise = new Promise<IResolvedCharacter[]>(async (resolve, _reject) => {
       const cachedCharacters = await this.characterNameIDStore.getValuesByID(IDs)
@@ -27,34 +29,26 @@ export class CharacterIDResolver implements ICharacterIDResolver {
         resolve(cachedResolvedCharacters)
         return
       }
+      const response = await this.universeApi.postUniverseNames(idsExcludingCached)
+      const characters: Array<PostUniverseNames200Ok> = response.body
 
-      let chunkedIDs = []
-      while (idsExcludingCached.length > 0) {
-        chunkedIDs.push(idsExcludingCached.splice(0,50))
-      }
-
-      const promises = chunkedIDs.map((chunk: number[]): Promise<IResolvedCharacter[]> => {
-        return this.resolveChunkedIDs(chunk)
+      let resolvedCharacters: IResolvedCharacter[] = characters.map((character) => {
+        return { name: character.name, id: character.id || 0 }
+      }).filter((character: IResolvedCharacter) => {
+        return character.id !== 0
       })
-
-      const result = await Promise.all(promises)
-      const resolvedCharacters = [].concat.apply([], result)
-      resolve(resolvedCharacters)
-
+      this.characterNameIDStore.store(resolvedCharacters)
+      resolve(cachedResolvedCharacters.concat(resolvedCharacters))
     })
 
     return returningPromise
-
   }
 
   async resolveNames(name: string[]): Promise<IResolvedCharacter[]> {
-    const X2JS = require('x2js')
-    const x2js = new X2JS()
 
     return new Promise<IResolvedCharacter[]>(async (resolve, reject) => {
 
       try {
-        const token = await this.apiStore.getToken()
         const cachedIDs = await this.characterNameIDStore.getValuesByName(name)
         const cachedNames = cachedIDs.map((resolved: IResolvedCharacter): string => {
           return resolved.name
@@ -69,81 +63,26 @@ export class CharacterIDResolver implements ICharacterIDResolver {
         })
 
         if (namesExcludingCached.length === 0) {
+
           resolve(cachedResolvedCharacters)
           return
         }
 
-        let names = namesExcludingCached.join(',')
-        let URL = this.buildURL(token, names)
-        let response = await this.connectionManager.get(URL)
-        let document: any = x2js.xml2js(response)
-        let rows: any
-        rows = document.eveapi.result.rowset.row
+        const esiIds = await this.universeApi.postUniverseIds(namesExcludingCached)
+        const characters: Array<PostUniverseIdsCharacter> = esiIds.body.characters || []
 
-        if (rows.constructor !== Array) {
-          rows = [document.eveapi.result.rowset.row]
-        }
-        let resolvedCharacters: IResolvedCharacter[] = rows.map((row: any) => {
-          return { name: row._name, id: Number(row._characterID) || 0 }
-        }).filter((character: IResolvedCharacter) => {
+        let resolvedCharacters = characters.map((character) => {
+          return { name: character.name, id: character.id }
+        }).filter((character) => {
           return character.id !== 0
         })
-        this.characterNameIDStore.store(resolvedCharacters)
 
+        this.characterNameIDStore.store(resolvedCharacters)
         resolve(cachedResolvedCharacters.concat(resolvedCharacters))
 
       } catch (error) {
         reject('resolveNames failed: ' + error)
       }
     })
-  }
-
-  private async resolveChunkedIDs(IDs: number[]): Promise<IResolvedCharacter[]> {
-    const X2JS = require('x2js')
-    const x2js = new X2JS()
-
-    return new Promise<IResolvedCharacter[]>(async (resolve, reject) => {
-      try {
-        const token = await this.apiStore.getToken()
-        let idsToFetch = IDs.join(',')
-
-        let URL = this.buildURLByIDs(token, idsToFetch)
-        let response = await this.connectionManager.get(URL)
-        let document: any = x2js.xml2js(response)
-        let rows: any
-        rows = document.eveapi.result.rowset.row
-
-        if (rows.constructor !== Array) {
-          rows = [document.eveapi.result.rowset.row]
-        }
-        let resolvedCharacters: IResolvedCharacter[] = rows.map((row: any) => {
-          return { name: row._name, id: Number(row._characterID) || 0 }
-        }).filter((character: IResolvedCharacter) => {
-          return character.id !== 0
-        })
-        this.characterNameIDStore.store(resolvedCharacters)
-        resolve(resolvedCharacters)
-
-      } catch (error) {
-        reject('resolveChunkedIDs failed: ' + error)
-      }
-    })
-  }
-
-  private buildURL(token: IAPIToken, names: string): string {
-    let baseURL: string = 'https://api.eveonline.com'
-    let URI: string = '/eve/CharacterID.xml.aspx'
-    let parameters: string = '?keyID=' + token.keyID + '&vCode=' + token.verificationCode + '&names=' + names
-    let URL = baseURL + URI + parameters
-
-    return URL
-  }
-
-  private buildURLByIDs(token: IAPIToken, IDs: string): string {
-    let baseURL: string = 'https://api.eveonline.com'
-    let URI: string = '/eve/CharacterName.xml.aspx'
-    let parameters: string = '?keyID=' + token.keyID + '&vCode=' + token.verificationCode + '&ids=' + IDs
-    let URL = baseURL + URI + parameters
-    return URL
   }
 }

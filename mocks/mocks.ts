@@ -1,3 +1,7 @@
+import { Dictionary } from 'typescript-collections'
+import { PostUniverseIdsOk, PostUniverseNames200Ok } from 'eve-online-esi'
+import * as http from 'http'
+
 export class MockAPITokenStore implements IAPITokenStore {
   tokenToReturn: IAPIToken
   getTokenCallCount: number
@@ -102,6 +106,72 @@ export class MockCharacterNameIDStore implements INameIDStore {
     })
   }
 
+}
+
+export class MockCharacterAffiliationResolver implements ICharacterAffiliationResolver {
+  affiliationsToReturn: Dictionary<number,ICharacterAffiliationInfo>
+  errorToReturn: any
+  async getAffiliations(_characterIDs: number[]): Promise<Dictionary<number,ICharacterAffiliationInfo>> {
+    return new Promise<Dictionary<number,ICharacterAffiliationInfo>>((resolve, reject) => {
+      if (this.affiliationsToReturn) {
+        resolve(this.affiliationsToReturn)
+      } else {
+        reject(this.errorToReturn || 'generic error')
+      }
+    })
+  }
+}
+
+export class MockZKillStatisticsFetcher implements IZKillStatisticsFetcher {
+  statisticsToReturn: Dictionary<number, IZKillStatisticsItem>
+  errorToReturn: any
+  async fetchStatistics(_characterIds: number[]): Promise<Dictionary<number, IZKillStatisticsItem>> {
+    return new Promise<Dictionary<number, IZKillStatisticsItem>>((resolve, reject) => {
+      if (this.statisticsToReturn) {
+        resolve(this.statisticsToReturn)
+      } else {
+        reject(this.errorToReturn || 'generic error')
+      }
+    })
+  }
+}
+
+export class MockUniverseApi implements IUniverseApi {
+  postUniverseNamesBody: PostUniverseNames200Ok[]
+  postUniverseNamesResponse: http.ClientResponse
+  postUniverseIdsBody: PostUniverseIdsOk
+  postUniverseIdsResponse: http.ClientResponse
+
+  capturedPostUniverseNamesIds: Array<number>
+  capturedPostUniverseIdsIds: Array<string>
+  postUniverseIds(
+    names: Array<string>,
+    _datasource?: string,
+    _language?: string,
+    _userAgent?: string,
+    _xUserAgent?: string): Promise<{ response: http.ClientResponse; body: PostUniverseIdsOk;}> {
+    this.capturedPostUniverseIdsIds = names
+    return new Promise((resolve, _reject) => {
+      resolve({
+        response: this.postUniverseIdsResponse,
+        body: this.postUniverseIdsBody
+      })
+    })
+  }
+
+  postUniverseNames(
+    ids: Array<number>,
+    _datasource?: string,
+    _userAgent?: string,
+    _xUserAgent?: string): Promise<{ response: http.ClientResponse; body: Array<PostUniverseNames200Ok>;}> {
+    this.capturedPostUniverseNamesIds = ids
+    return new Promise((resolve, _reject) => {
+      resolve({
+        response: this.postUniverseNamesResponse,
+        body: this.postUniverseNamesBody
+      })
+    })
+  }
 }
 
 export namespace Data {

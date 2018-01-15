@@ -1,15 +1,17 @@
 import 'mocha'
 import * as chai from 'chai'
 import KillDataViewModelProvider from '../src/KillDataViewModelProvider'
-import CharacterAffiliationResolver from '../src/CharacterAffiliationResolver'
+import { MockCharacterAffiliationResolver, MockZKillStatisticsFetcher } from '../mocks/mocks'
 import { TestHelpers } from './TestHelpers'
-import ZKillStatisticsFetcher from '../src/ZKillStatisticsFetcher'
-import { ConnectionManager } from '../src/ConnectionManager'
+import Dictionary from 'typescript-collections/dist/lib/Dictionary'
 
 describe('KillDataViewModelProvider', () => {
-  const affilationResolver = new CharacterAffiliationResolver()
-  const statisticsFetcher = new ZKillStatisticsFetcher(new ConnectionManager('foo'))
+  const affilationResolver = new MockCharacterAffiliationResolver()
+  const statisticsFetcher = new MockZKillStatisticsFetcher()
   const provider: IKillDataViewModelProvider = new KillDataViewModelProvider(affilationResolver, statisticsFetcher)
+  affilationResolver.affiliationsToReturn = new Dictionary<number, ICharacterAffiliationInfo>()
+  statisticsFetcher.statisticsToReturn = new Dictionary<number, IZKillStatisticsItem>()
+
   it('Provides a view model for kill data', async () => {
     const killData: ICharacterKillData[] = [
       {
@@ -25,14 +27,16 @@ describe('KillDataViewModelProvider', () => {
         losses: []
       }
     ]
-    const viewModel = await provider.viewModel(killData)
+    let viewModel: IKillDataViewModel
+    viewModel = await provider.viewModel(killData)
     chai.assert.equal(viewModel.characters.length, 2)
-    chai.assert.equal(viewModel.characters[0].id, 1)
-    chai.assert.equal(viewModel.characters[0].name, 'kellyl')
-    chai.assert.equal(viewModel.characters[0].characterImageURL, 'https://image.eveonline.com/Character/1_256.jpg')
-    chai.assert.equal(viewModel.characters[1].id, 2)
-    chai.assert.equal(viewModel.characters[1].name, 'sp4m')
-    chai.assert.equal(viewModel.characters[1].characterImageURL, 'https://image.eveonline.com/Character/2_256.jpg')
+    chai.assert.equal(viewModel.characters[0].id, 2)
+    chai.assert.equal(viewModel.characters[0].name, 'sp4m')
+    chai.assert.equal(viewModel.characters[0].characterImageURL, 'https://image.eveonline.com/Character/2_256.jpg')
+    chai.assert.equal(viewModel.characters[1].id, 1)
+    chai.assert.equal(viewModel.characters[1].name, 'kellyl')
+    chai.assert.equal(viewModel.characters[1].characterImageURL, 'https://image.eveonline.com/Character/1_256.jpg')
+
   }),
   it('calculates recent flown ships from kills', async () => {
     const kills = [

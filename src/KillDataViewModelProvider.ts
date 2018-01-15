@@ -11,8 +11,11 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
   }
 
   async viewModel(data: ICharacterKillData[]): Promise<IKillDataViewModel> {
-
     return new Promise<IKillDataViewModel>(async (resolve, _reject) => {
+      if (data.length === 0) {
+        resolve({ characters: [] })
+        return
+      }
       const characterIDs = data.map((kill): number => {
         return kill.id
       })
@@ -24,26 +27,29 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
       })
 
       const charactersInAlliance = characters.filter((character) => {
-        return character.allianceName === ''
+        return character.allianceName !== undefined && character.allianceName !== ''
       })
       .sort((a, b): number => {
         return (a.allianceName || '') > (b.allianceName || '') ? -1 : 1
       })
 
       const charactersNotInAlliance = characters.filter((character) => {
-        return character.allianceName !== ''
+        return character.allianceName === undefined || character.allianceName === ''
       })
       .sort((a, b): number => {
         return (a.corpName || '') > (b.corpName || '') ? -1 : 1
       })
-      const orderedCharacters = charactersInAlliance.concat(charactersNotInAlliance)
 
+      const orderedCharacters: ICharacterKillDataViewModel[] = [].concat.apply(charactersInAlliance, charactersNotInAlliance)
       const zkillStatistics: Collections.Dictionary<number, IZKillStatisticsItem> = await this.statisticsFetcher.fetchStatistics(characterIDs)
-
       orderedCharacters.forEach((character) => {
-        character.dangerRatio = zkillStatistics.getValue(character.id).dangerRatio
-        character.gangRatio = zkillStatistics.getValue(character.id).gangRatio
+        const theCharacter = zkillStatistics.getValue(character.id)
+        if (theCharacter) {
+          character.dangerRatio = theCharacter.dangerRatio
+          character.gangRatio = theCharacter.gangRatio
+        }
       })
+
       const viewModel: IKillDataViewModel = {
         characters: orderedCharacters
       }
@@ -90,22 +96,22 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
     const flownFromKills = this.flownShipsFromKillData(characterKillData)
     const flownFromLosses = this.flownShipsFromLossData(characterKillData)
     let combinedKills = new Collections.Dictionary<string, number>()
-    flownFromLosses.forEach((shipName, flownCount) => {
+    flownFromLosses.forEach((shipName: string, flownCount: number) => {
       const currentValue = combinedKills.getValue(shipName) || 0
       combinedKills.setValue(shipName, currentValue + flownCount)
     })
 
-    flownFromKills.forEach((shipName, flownCount) => {
+    flownFromKills.forEach((shipName: string, flownCount: number) => {
       const currentValue = combinedKills.getValue(shipName) || 0
       combinedKills.setValue(shipName, currentValue + flownCount)
     })
 
-    const mapped = combinedKills.keys().map((key: string): {key: string, value: number} => {
+    const mapped: {key: string, value: number}[] = combinedKills.keys().map((key: string): {key: string, value: number} => {
       return {
         key: key,
         value: combinedKills.getValue(key)
       }
-    }).filter((ship): boolean => {
+    }).filter((ship: {key: string, value: number}): boolean => {
       return ship.key !== 'Capsule'
     })
 
@@ -118,11 +124,19 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
         name: value.key,
         count: value.value,
         killsWhileFlying: flownFromKills.getValue(value.key) || 0,
-        losses: flownFromLosses.getValue(value.key) || 0
+        losses: flownFromLosses.getValue(value.key) || 0,
+        id: 0
       }
     })
-    const corpName = affiliations.getValue(characterKillData.id).corporationName
-    const allianceName = affiliations.getValue(characterKillData.id).allianceName
+    let corpName: string = ''
+    if (affiliations.getValue(characterKillData.id) && affiliations.getValue(characterKillData.id).corporationName) {
+      corpName = affiliations.getValue(characterKillData.id).corporationName || ''
+    }
+    let allianceName: string = ''
+    if (affiliations.getValue(characterKillData.id) && affiliations.getValue(characterKillData.id).allianceName) {
+      allianceName = affiliations.getValue(characterKillData.id).allianceName || ''
+    }
+
     return {
       id: characterKillData.id,
       name: characterKillData.name,

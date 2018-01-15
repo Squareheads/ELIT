@@ -11,7 +11,8 @@ export namespace TestHelpers {
           finalBlow: true,
           securityStatus: 0.1,
           shipType: attackerShip,
-          weaponType: 'Light Neutron Blaster II'
+          weaponType: 'Light Neutron Blaster II',
+          shipId: 0
         }
       ],
       killmailID: 0,
@@ -22,7 +23,8 @@ export namespace TestHelpers {
         coroporationID: 0,
         damageTaken: 0,
         items: [],
-        shipType: victimShip
+        shipType: victimShip,
+        shipId: 0
       }
     }
   }

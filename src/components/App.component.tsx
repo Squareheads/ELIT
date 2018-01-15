@@ -4,6 +4,7 @@ import SearchForm from './SearchForm.component'
 import APIForm from './APIForm.component'
 import MenuItem from './MenuItem.component'
 import ESIAPIForm from './ESIAPIForm.component'
+import AppUpdate from './AppUpdate.component'
 import APIChecker from '../APIChecker'
 import { APITokenStore } from '../APITokenStore'
 import { CharacterLookup } from '../CharacterLookup'
@@ -18,6 +19,8 @@ import EVEKSpaceDatabase from '../EVEKSpaceDatabase'
 import KillDataViewModelProvider from '../KillDataViewModelProvider'
 import CharacterAffiliationResolver from '../CharacterAffiliationResolver'
 import ZKillStatisticsFetcher from '../ZKillStatisticsFetcher'
+import { UniverseApi } from 'eve-online-esi'
+import * as colors from 'material-ui/styles/colors'
 
 const Pages = {
   Search: 'Search',
@@ -44,24 +47,21 @@ export default class App extends Component<IAppComponentProps, IAppComponentStat
     }
 
     let searchSelected = (this.state.page === Pages.Search)
-    let settingsSelected = (this.state.page === Pages.Settings)
-    let esiapiSelected = (this.state.page === Pages.ESIAPI)
 
     let contents = this.buildContents()
     let searchMenuKey = 'menu-button-search-selected-' + searchSelected
-    let settingsMenuKey = 'menu-button-settings-selected-' + settingsSelected
-    let esiapiMenuKey = 'menu-button-esiapi-selected-' + esiapiSelected
 
     return (
       <MuiThemeProvider>
       <div>
         <div style={menucontainer}>
-        <MenuItem key = {searchMenuKey} text = 'Search' selected = {searchSelected} color = '#566D7E' selectedColor = '#4863A0' clickHandler ={ this.handleSearchMenuClicked } />
-        <MenuItem key = {settingsMenuKey} text = 'Settings' selected = {settingsSelected} color = '#566D7E' selectedColor = '#4863A0' clickHandler ={ this.handleSettingsMenuClicked } />
-        <MenuItem key = {esiapiMenuKey} text = 'API' selected = {esiapiSelected} color = '#566D7E' selectedColor = '#4863A0' clickHandler ={ this.handleESIAPIMenuClicked } />
+        <MenuItem key = {searchMenuKey} text = 'Search' selected = {searchSelected} color = { colors.cyan500 } selectedColor = { colors.blue500 } clickHandler ={ this.handleSearchMenuClicked } />
         </div>
         <div>
           { contents }
+        </div>
+        <div>
+          <AppUpdate />
         </div>
       </div>
       </MuiThemeProvider>
@@ -92,9 +92,10 @@ export default class App extends Component<IAppComponentProps, IAppComponentStat
       const kspaceDB = new EVEKSpaceDatabase()
       const itemDB = new EVETypeDatabase()
       const killmailParser = new KillmailParser()
-      const characterResolver = new CharacterIDResolver(apiStore, connectionManager, characterNameIDStore)
+      const universeApi = new UniverseApi()
+      const characterResolver = new CharacterIDResolver(characterNameIDStore, universeApi)
       const killFetcher: IKillFetcher = new KillFetcher(connectionManager, killmailParser, kspaceDB, itemDB, characterResolver)
-      const lookup = new CharacterLookup(apiStore,characterResolver, killFetcher)
+      const lookup = new CharacterLookup(characterResolver, killFetcher)
       const affiliationResolver = new CharacterAffiliationResolver()
       const statisticsFetcher = new ZKillStatisticsFetcher(connectionManager)
       const killDataViewModelProvider = new KillDataViewModelProvider(affiliationResolver, statisticsFetcher)

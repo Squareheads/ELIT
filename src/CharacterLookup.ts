@@ -1,14 +1,11 @@
 export class CharacterLookup implements ICharacterLookup {
 
-  apiStore: IAPITokenStore
-  idResolver: ICharacterIDResolver
-  killFetcher: IKillFetcher
+  private idResolver: ICharacterIDResolver
+  private killFetcher: IKillFetcher
 
-  constructor(apiStore: IAPITokenStore,
-    idResolver: ICharacterIDResolver,
+  constructor(idResolver: ICharacterIDResolver,
     killFetcher: IKillFetcher) {
     this.killFetcher = killFetcher
-    this.apiStore = apiStore
     this.idResolver = idResolver
   }
 
@@ -17,7 +14,6 @@ export class CharacterLookup implements ICharacterLookup {
     return new Promise<ICharacterKillData[]>(async (resolve, reject) => {
 
       try {
-        await this.apiStore.getToken()
 
         let ids: IResolvedCharacter[] = await this.idResolver.resolveNames(splitNames)
 

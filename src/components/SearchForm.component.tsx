@@ -3,13 +3,17 @@ import RaisedButton from 'material-ui/RaisedButton'
 import CircularProgress from 'material-ui/CircularProgress'
 import TextField from 'material-ui/TextField'
 import KillInfoDisplay from './KillInfoDisplay.component'
+import AnalyticsTracker from '../AnalyticsTracker'
 
 class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
 
+  tracker: AnalyticsTracker
   characterLookup: ICharacterLookup
   killDataViewModelProvider: IKillDataViewModelProvider
+
   constructor(props: ISearchFormProps) {
     super(props)
+    this.tracker = new AnalyticsTracker()
     this.state = { text: props.text || '', page: 'search-form' }
     this.characterLookup = props.characterLookup
     this.killDataViewModelProvider = props.killDataViewModelProvider
@@ -23,6 +27,7 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
 
   handleSubmit(event: any) {
     const text = this.state.text
+    this.tracker.event('SearchForm', 'Search')
     this.setState({ page: 'loading' })
 
     this.characterLookup.lookupCharacters(text)
@@ -44,12 +49,15 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
   render() {
     switch (this.state.page) {
     case 'search-form':
+      this.tracker.trackPage('/search', 'Search')
       return this.renderSearchForm()
     case 'loading':
       return this.renderLoading()
     case 'kill-info':
+      this.tracker.trackPage('/search/kill-info', 'Search')
       return this.renderKillInfo()
     }
+    this.tracker.trackPage('/search', 'Search')
     return this.renderSearchForm()
   }
 
@@ -70,7 +78,6 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
   }
 
   private renderKillInfo() {
-    // const viewModel = this.killDataViewModelProvider.viewModel(this.state.killInfo || [])
     const viewModel = this.state.killInfo || { characters: [] }
     return (<KillInfoDisplay key='kill-info' viewModel = { viewModel }/>)
   }

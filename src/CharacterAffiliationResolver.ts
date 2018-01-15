@@ -14,7 +14,9 @@ export default class CharacterAffiliationResolver implements ICharacterAffiliati
   async getAffiliations(characterIDs: number[]): Promise<Collections.Dictionary<number,ICharacterAffiliationInfo>> {
 
     return new Promise<Collections.Dictionary<number,ICharacterAffiliationInfo>>(async (resolve, _reject) => {
-      const affiliations: { response: ClientResponse; body: Array<PostCharactersAffiliation200Ok>; } = await this.characterApi.postCharactersAffiliation(characterIDs)
+      const uniqueCharacterIDs = Array.from(new Set(characterIDs))
+
+      const affiliations: { response: ClientResponse; body: Array<PostCharactersAffiliation200Ok>; } = await this.characterApi.postCharactersAffiliation(uniqueCharacterIDs)
       let characterIdAffiliationIds: Collections.Dictionary<number, {corporationId: number, allianceId: number}> = new Collections.Dictionary()
 
       affiliations.body.forEach((affiliation) => {
@@ -40,7 +42,6 @@ export default class CharacterAffiliationResolver implements ICharacterAffiliati
         }
       })
 
-      console.log('ids to look up ' + JSON.stringify(Array.from(idsToLookUp)))
       const postUniverseNamesResult = await this.universeApi.postUniverseNames(Array.from(idsToLookUp))
 
       let corporations = new Collections.Dictionary<number, string>()
@@ -63,13 +64,12 @@ export default class CharacterAffiliationResolver implements ICharacterAffiliati
 
       let dict: Collections.Dictionary < number,ICharacterAffiliationInfo > = new Collections.Dictionary()
 
-      characterIDs.forEach((characterId) => {
+      uniqueCharacterIDs.forEach((characterId) => {
         const corpId = characterIdAffiliationIds.getValue(characterId).corporationId
         const allianceId = characterIdAffiliationIds.getValue(characterId).allianceId
         const value = { corporationName: corporations.getValue(corpId) || '', allianceName: alliances.getValue(allianceId) || '' }
         dict.setValue(characterId, value)
       })
-
       resolve(dict)
     })
   }

@@ -1,16 +1,18 @@
 import React from 'react'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
-import { ipcRenderer } from 'electron'
 import APIToken from '../APITokenModel'
+import AnalyticsTracker from '../AnalyticsTracker'
 
 class APIForm extends React.Component<IAPIFormProps, IAPIToken> {
 
   apiChecker: IAPIChecker
   apiStore: IAPITokenStore
+  tracker: AnalyticsTracker
 
   constructor(props: IAPIFormProps) {
     super(props)
+    this.tracker = new AnalyticsTracker()
     this.apiChecker = props.apiChecker
     this.apiStore = props.apiStore
     this.state = { keyID: '', verificationCode: '' }
@@ -30,7 +32,7 @@ class APIForm extends React.Component<IAPIFormProps, IAPIToken> {
 
   handleSubmit(event: any) {
     event.preventDefault()
-    ipcRenderer.send('check-api-token', this.state)
+    this.tracker.event('APIForm', 'Save')
     let token = new APIToken(this.state.keyID, this.state.verificationCode)
     this.checkAPIToken(token)
   }
@@ -61,6 +63,7 @@ class APIForm extends React.Component<IAPIFormProps, IAPIToken> {
   }
 
   render() {
+    this.tracker.trackPage('/apiform', 'APIForm')
     return (
       <form onSubmit={this.handleSubmit}>
       <TextField

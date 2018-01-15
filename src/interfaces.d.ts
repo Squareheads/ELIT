@@ -1,3 +1,26 @@
+interface IAppUpdateProps {
+} 
+
+interface IAppUpdateState {
+  state: UpdateState
+  progress: number
+}
+
+interface IAppUpdater {
+  delegate: IAppUpdateDelegate
+  download()
+  install()
+}
+
+interface IAppUpdaterDelegate {
+  updaterCheckingForUpdates(updater: IAppUpdater)
+  updateIsAvailable(updater: IAppUpdater)
+  updateNotAvailable(updater: IAppUpdater)
+  updateCheckError(updater: IAppUpdater, error: any)
+  updateDidProgress(updater: IAppUpdater, progress: any)
+  updateDidDownload(updater: IAppUpdater)
+}
+
 interface IAPIFormProps {
   apiChecker: IAPIChecker
   apiStore: IAPITokenStore
@@ -127,6 +150,7 @@ interface IFlownShip {
   count: number
   losses: number
   killsWhileFlying: number
+  id: number
 }
 
 interface ICharacterKillDataViewModel {
@@ -165,6 +189,7 @@ interface ICharacterKillmail {
 interface ICharacterKillmailVictim {
   damageTaken: number
   shipType: string
+  shipId: number
   characterName: string
   coroporationID: number
   allianceID?: number
@@ -179,6 +204,7 @@ interface ICharacterKillmailAttacker {
   allianceId?: number
   factionId?: number
   shipType: string
+  shipId: number
   weaponType?: string
 }
 
@@ -267,3 +293,35 @@ interface IKillInfoDisplayState {
   shipPopover?: IKillDataShipPopover
 }
 
+interface AnalyticsEventOptions {
+  evLabel?: string
+  evValue?: string
+  clientID?: string
+}
+
+interface IUniverseApi {
+  postUniverseIds(
+    names: Array<string>, 
+    datasource?: string, 
+    language?: string,
+    userAgent?: string, 
+    xUserAgent?: string): Promise<{ response: http.ClientResponse; body: PostUniverseIdsOk;}>
+
+  postUniverseNames(
+    ids: Array<number>, 
+    datasource?: string, 
+    userAgent?: string, 
+    xUserAgent?: string): Promise<{ response: http.ClientResponse; body: Array<PostUniverseNames200Ok>;}>
+}
+
+declare class Analytics {
+  constructor(trackingCode: string)
+  pageview(hostname: string, url: string, title: string, clientID?: string)
+  event(evCategory: string, evAction: string, options: AnalyticsEventOptions)
+}
+
+declare var analyticsClass = Analytics;
+
+declare module 'electron-google-analytics' {
+  export = analyticsClass;
+}

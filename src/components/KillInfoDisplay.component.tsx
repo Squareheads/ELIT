@@ -29,16 +29,19 @@ const styles = {
     width: 50
   },
   numberCellStyle: {
-    width: 30
+    width: 34
   },
   nameCell: {
-    width: 80
+    width: 80,
+    whiteSpace: 'normal'
   },
   corpCell: {
-    width: 80
+    width: 80,
+    whiteSpace: 'normal'
   },
   allianceCell: {
-    width: 80
+    width: 80,
+    whiteSpace: 'normal'
   }
 }
 
@@ -49,6 +52,7 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     this.state = { viewModel: props.viewModel }
     this.handleShipNameClick = this.handleShipNameClick.bind(this)
     this.handleRequestClose = this.handleRequestClose.bind(this)
+    this.handleNameShipPopoverClick = this.handleNameShipPopoverClick.bind(this)
   }
 
   render() {
@@ -74,6 +78,10 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
   }
 
   private shipPopoverElement(): JSX.Element {
+    if (this.state.viewModel.characters.length === 0) {
+      return <div />
+    }
+
     let popoverOpen = false
     let popoverAnchorEl = undefined
     let popoverIndex = 0
@@ -85,7 +93,9 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     const menuItems = this.state.viewModel.characters[popoverIndex].flownShips
     .slice(0,6)
     .map((ship: IFlownShip): JSX.Element => {
-      return <MenuItem key={ ship.name + '-' + ship.count } primaryText={ ship.name + '(' + ship.killsWhileFlying + 'kills while flying, ' + ship.losses + 'losses)' }/>
+      return <MenuItem key={ ship.name + '-' + ship.count }
+      primaryText={ ship.name + '(' + ship.killsWhileFlying + 'kills while flying, ' + ship.losses + 'losses)' }
+      onClick={() => this.handleNameShipPopoverClick(popoverIndex, ship)}/>
     })
 
     return(
@@ -109,6 +119,10 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
         characterIndex: 0
       }
     })
+  }
+
+  private handleNameShipPopoverClick(characterIndex: number, ship: IFlownShip) {
+    const character = this.state.viewModel.characters[characterIndex]
   }
   private handleShipNameClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
@@ -148,9 +162,9 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
 
     let lastFlownShipElement: JSX.Element
     if (character.flownShips[0] && character.flownShips[0].name) {
-      const lastShipName = character.flownShips[0].name
+      const recentShipNames = character.flownShips.slice(0,3).map((ship) => { return ship.name }).join(', ')
       const discloseShipButton = <IconButton id={'' + characterIndex} onClick={this.handleShipNameClick}><KeyboardArrowDown/></IconButton>
-      lastFlownShipElement = <TableRowColumn>{ discloseShipButton } { lastShipName }</TableRowColumn>
+      lastFlownShipElement = <TableRowColumn>{ discloseShipButton } { recentShipNames }</TableRowColumn>
     } else {
 
       const noShipStyle = {
@@ -168,8 +182,8 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
         <TableRowColumn style = { styles.corpCell }>{ character.corpName }</TableRowColumn>
         <TableRowColumn style = { styles.allianceCell }>{ character.allianceName }</TableRowColumn>
         { lastFlownShipElement }
-        <TableRowColumn style = { styles.numberCellStyle }>{ character.gangRatio + '%' }</TableRowColumn>
-        <TableRowColumn style = { styles.numberCellStyle }>{ character.dangerRatio + '%' }</TableRowColumn>
+        <TableRowColumn style = { styles.numberCellStyle }>{ character.gangRatio || 0 }%</TableRowColumn>
+        <TableRowColumn style = { styles.numberCellStyle }>{ character.dangerRatio || 0 }%</TableRowColumn>
       </TableRow >
     )
   }
