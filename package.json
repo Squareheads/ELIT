@@ -1,6 +1,6 @@
 {
   "name": "ELIT",
-  "version": "0.0.17",
+  "version": "0.1.0",
   "description": "ELIT - Eve Local Intel Tool",
   "main": "dist/main.js",
   "repository": "git@github.com:Squareheads/ELIT.git",
