@@ -107,6 +107,28 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(viewModel.characters[0].flownShips[2].losses, 1)
 
   }),
+  it('Adds cyno ppoint of interest if losses contain a cyno', async () => {
+    const losses = [
+      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl')
+    ]
+
+    const killData: ICharacterKillData[] = [
+      {
+        id: 1,
+        name: 'Kellyl',
+        kills: [],
+        losses: losses
+      }
+    ]
+    const viewModel = await provider.viewModel(killData)
+    chai.assert.equal(viewModel.characters.length, 1)
+    chai.assert.isNotNull(viewModel.characters[0])
+    const character = viewModel.characters[0]
+
+    chai.assert.equal(character.flownShips.length, 1)
+    chai.assert.equal(character.flownShips[0].name, 'Taranis')
+
+  }),
   it('calculates recent flwon ships from kills and losses', async () => {
 
     const kills = [
