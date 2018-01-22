@@ -1,5 +1,10 @@
 import * as Collections from 'typescript-collections'
 
+enum InterestingDataPointType {
+  UsesCyno,
+  UsesCovertCyno
+}
+
 export default class KillDataViewModelProvider implements IKillDataViewModelProvider {
 
   affiliationResolver: ICharacterAffiliationResolver
@@ -96,6 +101,23 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
     return flown
   }
 
+  private dataPointsForCharacter(_characterKillData: ICharacterKillData): IInterestingDataPoint[] {
+    let points: IInterestingDataPoint[] = []
+    _characterKillData.losses.forEach((loss) => {
+      loss.victim.items.forEach((item) => {
+        console.log('item type ' + item.itemType)
+        if (item.itemType === 'Cynosural Field Generator I') {
+          points.push({ type: InterestingDataPointType.UsesCyno })
+        }
+        if (item.itemType === 'Covert Cynosural Field Generator I ') {
+          points.push({ type: InterestingDataPointType.UsesCovertCyno })
+
+        }
+      })
+    })
+    return points
+  }
+
   private characterViewModel(characterKillData: ICharacterKillData, affiliations: Collections.Dictionary<number,ICharacterAffiliationInfo>): ICharacterKillDataViewModel {
     const flownFromKills = this.flownShipsFromKillData(characterKillData)
     const flownFromLosses = this.flownShipsFromLossData(characterKillData)
@@ -147,7 +169,8 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
       corpName: corpName,
       allianceName: allianceName,
       characterImageURL: 'https://image.eveonline.com/Character/' + characterKillData.id + '_256.jpg',
-      flownShips: orderedFlownShips
+      flownShips: orderedFlownShips,
+      interestingDataPoints: this.dataPointsForCharacter(characterKillData)
     }
   }
 }

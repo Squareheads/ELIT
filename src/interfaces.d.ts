@@ -153,6 +153,10 @@ interface IFlownShip {
   id: number
 }
 
+interface IInterestingDataPoint {
+  type: InterestingDataPointType
+}
+
 interface ICharacterKillDataViewModel {
   name: string
   id: number
@@ -162,6 +166,7 @@ interface ICharacterKillDataViewModel {
   dangerRatio?: number
   gangRatio?: number
   flownShips: IFlownShip[]
+  interestingDataPoints: IInterestingDataPoint[]
 }
 
 interface IKillDataViewModelProvider {
