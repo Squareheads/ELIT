@@ -1,5 +1,5 @@
 export namespace TestHelpers {
-  export function killData(attackerName: string, attackerShip: string, victimShip: string, victimName: string): ICharacterKillmail {
+  export function killData(attackerName: string, attackerShip: string, victimShip: string, victimName: string, lostItems: ICharacterKillmailItem[] = []): ICharacterKillmail {
     return {
       solarSystem: 'system',
       attackers: [
@@ -22,7 +22,7 @@ export namespace TestHelpers {
         characterName: victimName,
         coroporationID: 0,
         damageTaken: 0,
-        items: [],
+        items: lostItems,
         shipType: victimShip,
         shipId: 0
       }

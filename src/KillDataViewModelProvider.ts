@@ -1,9 +1,5 @@
 import * as Collections from 'typescript-collections'
-
-enum InterestingDataPointType {
-  UsesCyno,
-  UsesCovertCyno
-}
+import { InterestingDataPointType } from './InterestingDataPointType'
 
 export default class KillDataViewModelProvider implements IKillDataViewModelProvider {
 
@@ -102,19 +98,23 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
   }
 
   private dataPointsForCharacter(_characterKillData: ICharacterKillData): IInterestingDataPoint[] {
-    let points: IInterestingDataPoint[] = []
+    let pointTypes: InterestingDataPointType[] = []
+
     _characterKillData.losses.forEach((loss) => {
       loss.victim.items.forEach((item) => {
-        console.log('item type ' + item.itemType)
-        if (item.itemType === 'Cynosural Field Generator I') {
-          points.push({ type: InterestingDataPointType.UsesCyno })
+        if (item.itemType === 'Cynosural Field Generator I' && pointTypes.indexOf(InterestingDataPointType.UsesCyno) === -1) {
+          pointTypes.push(InterestingDataPointType.UsesCyno)
         }
-        if (item.itemType === 'Covert Cynosural Field Generator I ') {
-          points.push({ type: InterestingDataPointType.UsesCovertCyno })
-
+        if (item.itemType === 'Covert Cynosural Field Generator I' && pointTypes.indexOf(InterestingDataPointType.UsesCovertCyno) === -1) {
+          pointTypes.push(InterestingDataPointType.UsesCovertCyno)
         }
       })
     })
+
+    let points: IInterestingDataPoint[] = pointTypes.map((pointType) => {
+      return { type: pointType }
+    })
+
     return points
   }
 

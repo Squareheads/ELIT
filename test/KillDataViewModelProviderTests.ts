@@ -1,10 +1,10 @@
 import 'mocha'
 import * as chai from 'chai'
 import KillDataViewModelProvider from '../src/KillDataViewModelProvider'
+import { InterestingDataPointType } from '../src/InterestingDataPointType'
 import { MockCharacterAffiliationResolver, MockZKillStatisticsFetcher } from '../mocks/mocks'
 import { TestHelpers } from './TestHelpers'
 import Dictionary from 'typescript-collections/dist/lib/Dictionary'
-
 describe('KillDataViewModelProvider', () => {
   const affilationResolver = new MockCharacterAffiliationResolver()
   const statisticsFetcher = new MockZKillStatisticsFetcher()
@@ -107,9 +107,12 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(viewModel.characters[0].flownShips[2].losses, 1)
 
   }),
-  it('Adds cyno ppoint of interest if losses contain a cyno', async () => {
+  it('Adds cyno point of interest if losses contain a cyno', async () => {
+    const lostItems: ICharacterKillmailItem[] = [
+      { itemType: 'Cynosural Field Generator I' }
+    ]
     const losses = [
-      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl')
+      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems)
     ]
 
     const killData: ICharacterKillData[] = [
@@ -126,7 +129,94 @@ describe('KillDataViewModelProvider', () => {
     const character = viewModel.characters[0]
 
     chai.assert.equal(character.flownShips.length, 1)
+    chai.assert.equal(character.flownShips[0].name, 'Rapier')
+    chai.assert.equal(character.interestingDataPoints.length, 1)
+    chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCyno)
+
+  }),
+  it('Adds single cyno point of interest if losses contain multiple cynos', async () => {
+    const lostItems: ICharacterKillmailItem[] = [
+      { itemType: 'Cynosural Field Generator I' }
+    ]
+    const losses = [
+      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems),
+      TestHelpers.killData('Some Dude', 'Rapier', 'Taranis', 'Kellyl', lostItems)
+    ]
+
+    const killData: ICharacterKillData[] = [
+      {
+        id: 1,
+        name: 'Kellyl',
+        kills: [],
+        losses: losses
+      }
+    ]
+    const viewModel = await provider.viewModel(killData)
+    chai.assert.equal(viewModel.characters.length, 1)
+    chai.assert.isNotNull(viewModel.characters[0])
+    const character = viewModel.characters[0]
+
+    chai.assert.equal(character.flownShips.length, 2)
     chai.assert.equal(character.flownShips[0].name, 'Taranis')
+    chai.assert.equal(character.flownShips[1].name, 'Rapier')
+    chai.assert.equal(character.interestingDataPoints.length, 1)
+    chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCyno)
+
+  }),
+  it('Adds covert cyno point of interest if losses contain a covert cyno', async () => {
+    const lostItems: ICharacterKillmailItem[] = [
+      { itemType: 'Covert Cynosural Field Generator I' }
+    ]
+    const losses = [
+      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems)
+    ]
+
+    const killData: ICharacterKillData[] = [
+      {
+        id: 1,
+        name: 'Kellyl',
+        kills: [],
+        losses: losses
+      }
+    ]
+    const viewModel = await provider.viewModel(killData)
+    chai.assert.equal(viewModel.characters.length, 1)
+    chai.assert.isNotNull(viewModel.characters[0])
+    const character = viewModel.characters[0]
+
+    chai.assert.equal(character.flownShips.length, 1)
+    chai.assert.equal(character.flownShips[0].name, 'Rapier')
+    chai.assert.equal(character.interestingDataPoints.length, 1)
+    chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCovertCyno)
+
+  }),
+  it('Adds single covert cyno point of interest if losses contain multiple covert cynos', async () => {
+    const lostItems: ICharacterKillmailItem[] = [
+      { itemType: 'Covert Cynosural Field Generator I' }
+    ]
+    const losses = [
+      TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems),
+      TestHelpers.killData('Some Dude', 'Rapier', 'Taranis', 'Kellyl', lostItems)
+    ]
+
+    const killData: ICharacterKillData[] = [
+      {
+        id: 1,
+        name: 'Kellyl',
+        kills: [],
+        losses: losses
+      }
+    ]
+    const viewModel = await provider.viewModel(killData)
+    chai.assert.equal(viewModel.characters.length, 1)
+    chai.assert.isNotNull(viewModel.characters[0])
+    const character = viewModel.characters[0]
+
+    chai.assert.equal(character.flownShips.length, 2)
+    chai.assert.equal(character.flownShips[0].name, 'Taranis')
+    chai.assert.equal(character.flownShips[1].name, 'Rapier')
+    chai.assert.equal(character.interestingDataPoints.length, 1)
+    chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCovertCyno)
 
   }),
   it('calculates recent flwon ships from kills and losses', async () => {
