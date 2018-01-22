@@ -97,22 +97,24 @@ export default class KillDataViewModelProvider implements IKillDataViewModelProv
     return flown
   }
 
+  private dataPointsContainType(points: IInterestingDataPoint[], type: InterestingDataPointType): boolean {
+    return points.filter((eachPoint): boolean => {
+      return eachPoint.type === type
+    }).length !== 0
+  }
+
   private dataPointsForCharacter(_characterKillData: ICharacterKillData): IInterestingDataPoint[] {
-    let pointTypes: InterestingDataPointType[] = []
+    let points: IInterestingDataPoint[] = []
 
     _characterKillData.losses.forEach((loss) => {
       loss.victim.items.forEach((item) => {
-        if (item.itemType === 'Cynosural Field Generator I' && pointTypes.indexOf(InterestingDataPointType.UsesCyno) === -1) {
-          pointTypes.push(InterestingDataPointType.UsesCyno)
+        if (item.itemType === 'Cynosural Field Generator I' && !this.dataPointsContainType(points, InterestingDataPointType.UsesCyno)) {
+          points.push({ type: InterestingDataPointType.UsesCyno, image: 'https://image.eveonline.com/Type/' + item.itemTypeID + '_64.png' })
         }
-        if (item.itemType === 'Covert Cynosural Field Generator I' && pointTypes.indexOf(InterestingDataPointType.UsesCovertCyno) === -1) {
-          pointTypes.push(InterestingDataPointType.UsesCovertCyno)
+        if (item.itemType === 'Covert Cynosural Field Generator I' && !this.dataPointsContainType(points, InterestingDataPointType.UsesCovertCyno)) {
+          points.push({ type: InterestingDataPointType.UsesCovertCyno, image: 'https://image.eveonline.com/Type/' + item.itemTypeID + '_64.png' })
         }
       })
-    })
-
-    let points: IInterestingDataPoint[] = pointTypes.map((pointType) => {
-      return { type: pointType }
     })
 
     return points

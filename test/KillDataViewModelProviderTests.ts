@@ -109,7 +109,7 @@ describe('KillDataViewModelProvider', () => {
   }),
   it('Adds cyno point of interest if losses contain a cyno', async () => {
     const lostItems: ICharacterKillmailItem[] = [
-      { itemType: 'Cynosural Field Generator I' }
+      { itemType: 'Cynosural Field Generator I', itemTypeID: 21096 }
     ]
     const losses = [
       TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems)
@@ -132,11 +132,12 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(character.flownShips[0].name, 'Rapier')
     chai.assert.equal(character.interestingDataPoints.length, 1)
     chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCyno)
+    chai.assert.equal(character.interestingDataPoints[0].image, 'https://image.eveonline.com/Type/21096_64.png')// cyno image
 
   }),
   it('Adds single cyno point of interest if losses contain multiple cynos', async () => {
     const lostItems: ICharacterKillmailItem[] = [
-      { itemType: 'Cynosural Field Generator I' }
+      { itemType: 'Cynosural Field Generator I', itemTypeID: 21096 }
     ]
     const losses = [
       TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems),
@@ -161,11 +162,12 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(character.flownShips[1].name, 'Rapier')
     chai.assert.equal(character.interestingDataPoints.length, 1)
     chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCyno)
+    chai.assert.equal(character.interestingDataPoints[0].image, 'https://image.eveonline.com/Type/21096_64.png')// cyno image
 
   }),
   it('Adds covert cyno point of interest if losses contain a covert cyno', async () => {
     const lostItems: ICharacterKillmailItem[] = [
-      { itemType: 'Covert Cynosural Field Generator I' }
+      { itemType: 'Covert Cynosural Field Generator I', itemTypeID: 28646 }
     ]
     const losses = [
       TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems)
@@ -188,11 +190,12 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(character.flownShips[0].name, 'Rapier')
     chai.assert.equal(character.interestingDataPoints.length, 1)
     chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCovertCyno)
+    chai.assert.equal(character.interestingDataPoints[0].image, 'https://image.eveonline.com/Type/28646_64.png') // covert cyno image
 
   }),
   it('Adds single covert cyno point of interest if losses contain multiple covert cynos', async () => {
     const lostItems: ICharacterKillmailItem[] = [
-      { itemType: 'Covert Cynosural Field Generator I' }
+      { itemType: 'Covert Cynosural Field Generator I', itemTypeID: 28646 }
     ]
     const losses = [
       TestHelpers.killData('Some Dude', 'Taranis', 'Rapier', 'Kellyl', lostItems),
@@ -217,6 +220,7 @@ describe('KillDataViewModelProvider', () => {
     chai.assert.equal(character.flownShips[1].name, 'Rapier')
     chai.assert.equal(character.interestingDataPoints.length, 1)
     chai.assert.equal(character.interestingDataPoints[0].type, InterestingDataPointType.UsesCovertCyno)
+    chai.assert.equal(character.interestingDataPoints[0].image, 'https://image.eveonline.com/Type/28646_64.png') // covert cyno image
 
   }),
   it('calculates recent flwon ships from kills and losses', async () => {

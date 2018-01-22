@@ -153,6 +153,7 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
       <TableHeaderColumn style = { styles.corpCell }>Corporation</TableHeaderColumn>
       <TableHeaderColumn style = { styles.corpCell }>Alliance</TableHeaderColumn>
       <TableHeaderColumn>Recent Ships</TableHeaderColumn>
+      <TableHeaderColumn style = { styles.imageColumnStyle }>POI</TableHeaderColumn>
       <TableHeaderColumn style = { styles.numberCellStyle }>Gang</TableHeaderColumn>
       <TableHeaderColumn style = { styles.numberCellStyle }>Danger</TableHeaderColumn>
       </TableRow>
@@ -176,6 +177,10 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     }
     const image = <Avatar src={ character.characterImageURL } size = { 50 } />
 
+    const poiImages = character.interestingDataPoints.map((point) => {
+      return <Avatar key={'poiimage-' + point.type } src={ point.image } size = { 25 } />
+    })
+
     return (
       <TableRow key = { character.id }>
         <TableRowColumn style={ styles.tableRowImageSizeStyle }>{ image }</TableRowColumn>
@@ -183,6 +188,7 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
         <TableRowColumn style = { styles.corpCell }>{ character.corpName }</TableRowColumn>
         <TableRowColumn style = { styles.allianceCell }>{ character.allianceName }</TableRowColumn>
         { lastFlownShipElement }
+        <TableRowColumn style = { styles.tableRowImageSizeStyle }>{ poiImages }</TableRowColumn>
         <TableRowColumn style = { styles.numberCellStyle }>{ character.gangRatio || 0 }%</TableRowColumn>
         <TableRowColumn style = { styles.numberCellStyle }>{ character.dangerRatio || 0 }%</TableRowColumn>
       </TableRow >

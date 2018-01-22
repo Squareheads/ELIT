@@ -178,7 +178,11 @@ export default class KillFetcher implements IKillFetcher {
   }
 
   private enrichedItem(item: IZKillboardItem): ICharacterKillmailItem {
-    const enriched = { itemType: this.typeDB.nameForTypeID(item.item_type_id) }
+    const enriched = {
+      itemType: this.typeDB.nameForTypeID(item.item_type_id),
+      itemTypeID: item.item_type_id
+    }
+
     return enriched
   }
 }

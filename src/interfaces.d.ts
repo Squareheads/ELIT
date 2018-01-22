@@ -155,6 +155,7 @@ interface IFlownShip {
 
 interface IInterestingDataPoint {
   type: InterestingDataPointType
+  image: string
 }
 
 interface ICharacterKillDataViewModel {
@@ -215,6 +216,7 @@ interface ICharacterKillmailAttacker {
 
 interface ICharacterKillmailItem {
   itemType: string
+  itemTypeID: number
 }
 
 interface IKillFetcher {
