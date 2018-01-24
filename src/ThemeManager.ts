@@ -37,7 +37,6 @@ export default class ThemeManager implements IThemeManager {
         } else {
           resolve(ThemeType.Light)
         }
-
       }).catch((_reason: any) => {
         resolve(ThemeType.Light)
       })

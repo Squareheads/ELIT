@@ -108,13 +108,20 @@ interface INameIDStorable {
 }
 
 interface IAppComponentState {
-  page: string
+  theme: ThemeType
 }
 
 interface IAppComponentProps {
-  
+  themeManager: IThemeManager
 }
 
+interface ISettingsFormProps {
+  themeManager: IThemeManager
+}
+
+interface ISettingsFormState {
+
+}
 
 interface IMenuItemProps {
   text: string
