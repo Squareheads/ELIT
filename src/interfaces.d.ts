@@ -321,6 +321,18 @@ interface IUniverseApi {
     xUserAgent?: string): Promise<{ response: http.ClientResponse; body: Array<PostUniverseNames200Ok>;}>
 }
 
+interface IStorableCurrentTheme {
+  id?: number
+  key: string
+  name: string
+}
+
+interface IThemeManager {
+  setCurrentTheme(theme: ThemeType)
+  async getCurrentTheme(): Promise<ThemeType> 
+  getAvailableThemes(): ThemeType[]
+}
+
 declare class Analytics {
   constructor(trackingCode: string)
   pageview(hostname: string, url: string, title: string, clientID?: string)

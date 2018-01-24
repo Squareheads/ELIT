@@ -2,8 +2,7 @@ import APIToken from './APITokenModel'
 import Dexie from 'dexie'
 
 class APITokenDatabase extends Dexie {
-  apiTokens: Dexie.Table<IAPITokenDataStorable
-  ,number>
+  apiTokens: Dexie.Table<IAPITokenDataStorable, number>
 
   constructor() {
     super('APITokenDatabase')
