@@ -23,7 +23,7 @@ class ThemeSelector extends React.Component<IThemeSelectorProps, IThemeSelectorS
     })
   }
 
-  handleChange(_event: any, index: number, value: any) {
+  handleChange(_event: any, index: number, _value: any) {
     this.setState({ index: index })
     this.themeManager.setCurrentTheme(this.state.themes[index])
   }

@@ -11,6 +11,7 @@ export default class EVETypeDatabase implements IEVETypeDatabase {
   nameForTypeID(typeID: number): string {
     const type = this.data.tables.invTypes.d[typeID]
     if (type === undefined) {
+      console.log('missing name for typeId: ' + typeID)
       return 'unknown type'
     }
     return type[1]
