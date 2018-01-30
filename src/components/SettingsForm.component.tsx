@@ -1,5 +1,6 @@
 import React from 'react'
 import AnalyticsTracker from '../AnalyticsTracker'
+import ThemeSelector from './ThemeSelector.component'
 
 class SettingsForm extends React.Component<ISettingsFormProps, ISettingsFormState> {
 
@@ -10,13 +11,13 @@ class SettingsForm extends React.Component<ISettingsFormProps, ISettingsFormStat
     super(props)
     this.tracker = new AnalyticsTracker()
     this.themeManager = props.themeManager
-    this.state = { }
+    this.state = {}
   }
 
   render() {
     this.tracker.trackPage('/settingsform', 'SettingsForm')
     return (
-      <div />
+      <ThemeSelector themeManager = { this.themeManager }/>
     )
   }
 }

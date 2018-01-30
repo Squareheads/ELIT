@@ -108,9 +108,14 @@ export default class KillFetcher implements IKillFetcher {
           }
         })
         let processedKills = rawKills.map((rawKillmail: IZKillboardKillmail): ICharacterKillmail => {
-          const attackers = rawKillmail.attackers.map((attacker: IZKillboardAttacker): ICharacterKillmailAttacker => {
+          const attackers = rawKillmail.attackers
+          .filter((attacker): boolean => {
+            return attacker.ship_type_id !== undefined
+          })
+          .map((attacker: IZKillboardAttacker): ICharacterKillmailAttacker => {
             return this.enrichedAttacker(attacker, resolvedCharacters)
           })
+
           return {
             killmailID: rawKillmail.killmail_id,
             killmailTime: new Date(rawKillmail.killmail_time),
@@ -140,7 +145,7 @@ export default class KillFetcher implements IKillFetcher {
     if (potentialCharacterNames && potentialCharacterNames[0] && potentialCharacterNames[0].name) {
       attackerName = potentialCharacterNames[0].name
     }
-
+    const shipType = attacker.ship_type_id ? this.typeDB.nameForTypeID(attacker.ship_type_id) : 'unknown ship'
     return {
       characterName: attackerName,
       allianceId: attacker.alliance_id,
@@ -148,8 +153,8 @@ export default class KillFetcher implements IKillFetcher {
       factionId: attacker.faction_id,
       finalBlow: attacker.final_blow,
       securityStatus: attacker.security_status,
-      shipType: this.typeDB.nameForTypeID(attacker.ship_type_id),
-      shipId: attacker.ship_type_id,
+      shipType: shipType,
+      shipId: attacker.ship_type_id || -1,
       weaponType: weaponType
     }
   }

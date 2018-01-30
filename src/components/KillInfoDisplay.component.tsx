@@ -62,9 +62,12 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
       return this.rowForCharacter(character, index)
     })
 
+    let divStyle = {
+      backgroundColor: 'transparant'
+    }
     const popover = this.shipPopoverElement()
     return(
-    <div>
+    <div style = { divStyle }>
       <Table fixedHeader={true} fixedFooter={true} selectable={false} multiSelectable={false}>
         { this.tableHeader() }
         <TableBody displayRowCheckbox = {false} selectable = {false} >

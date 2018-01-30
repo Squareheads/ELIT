@@ -19,6 +19,11 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
     this.killDataViewModelProvider = props.killDataViewModelProvider
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleClear = this.handleClear.bind(this)
+  }
+
+  handleClear(_event: any) {
+    this.setState({ page: 'search-form' })
   }
 
   handleTextAreaChange(event: React.FormEvent<HTMLTextAreaElement>) {
@@ -67,7 +72,8 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
       width: '100%',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      backgroundColor: 'transparant'
     }
 
     return (
@@ -79,26 +85,23 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
 
   private renderKillInfo() {
     const viewModel = this.state.killInfo || { characters: [] }
-    return (<KillInfoDisplay key='kill-info' viewModel = { viewModel }/>)
+    return(
+    <div>
+      <KillInfoDisplay key='kill-info' viewModel = { viewModel }/>
+      <RaisedButton label='Clear' secondary = {true} onClick={this.handleClear} fullWidth={true}/>
+    </div>
+    )
   }
 
   private renderSearchForm() {
-    const divstyle = {
-      height: '100vh',
-      width: '100%'
-    }
-    const formstyle = {
-      width: '100%',
-      height: '80%'
-    }
+
     const textareastyle = {
       display: 'inline-block',
       width: '100%'
     }
 
     return (
-      <div style={divstyle} key='search-form'>
-      <form style={formstyle} onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit}>
       <TextField
       hintText='Pilot names'
       floatingLabelText='Paste Local here'
@@ -107,9 +110,8 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
       value={this.state.text}
       onChange={this.handleTextAreaChange}
     />
-      <RaisedButton type='submit' label='Search' />
+      <RaisedButton type='submit' label='Search' secondary = {true} fullWidth={true} />
       </form>
-      </div>
     )
   }
 }

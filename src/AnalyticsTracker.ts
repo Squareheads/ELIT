@@ -19,11 +19,10 @@ export default class AnalyticsTracker {
   trackPage(pageURL: string, pageTitle: string) {
 
     this.gaTracker.pageview('hostname', pageURL, pageTitle, this.clientId)
-    console.log('sent pageView ' + pageURL + ' ' + pageTitle)
   }
 
   event(category: string, action: string) {
     this.gaTracker.event(category, action, { clientID: this.clientId })
-    console.log('sent event ' + category + ' ' + action)
+
   }
 }

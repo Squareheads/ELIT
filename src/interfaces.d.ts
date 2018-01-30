@@ -123,6 +123,14 @@ interface ISettingsFormState {
 
 }
 
+interface IThemeSelectorProps {
+  themeManager: IThemeManager
+ }
+interface IThemeSelectorState {
+  themes: ThemeType[]
+  index: number
+ }
+
 interface IMenuItemProps {
   text: string
   selected: boolean
@@ -250,7 +258,7 @@ interface IZKillboardAttacker {
   corporation_id?: number
   alliance_id?: number
   faction_id?: number
-  ship_type_id: number
+  ship_type_id?: number
   weapon_type_id?: number
 }
 

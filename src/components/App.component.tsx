@@ -9,7 +9,7 @@ import AppUpdate from './AppUpdate.component'
 import { CharacterLookup } from '../CharacterLookup'
 import { CharacterIDResolver } from '../CharacterIDResolver'
 import { ConnectionManager } from '../ConnectionManager'
-import { ThemeType } from '../ThemeType'
+import { ThemeType, stringToThemeType } from '../ThemeType'
 import NameIDStore from '../NameIDStore'
 import NameIDDatabase from '../NameIDDatabase'
 import KillmailParser from '../KillmailParser'
@@ -22,6 +22,7 @@ import ZKillStatisticsFetcher from '../ZKillStatisticsFetcher'
 import { UniverseApi } from 'eve-online-esi'
 import { MuiTheme } from 'material-ui/styles'
 import { Tabs, Tab } from 'material-ui/Tabs'
+import { ipcRenderer } from 'electron'
 
 export default class App extends Component<IAppComponentProps, IAppComponentState> {
 
@@ -42,44 +43,74 @@ export default class App extends Component<IAppComponentProps, IAppComponentStat
       .catch((_reason: any) => {
         this.setState({ theme: ThemeType.Light })
       })
+
+    ipcRenderer.on('theme', (_event: string, arg: string) => {
+      const newTheme = stringToThemeType(arg)
+      this.setState({ theme: newTheme })
+    })
   }
 
   render() {
-    let theme: MuiTheme = lightBaseTheme
 
-    switch (this.state.theme) {
-    case ThemeType.Light:
-      theme = lightBaseTheme
-      break
-    case ThemeType.Dark:
-      theme = darkBaseTheme
-      break
+    let theme: MuiTheme = this.muiThemeFromTheme(this.state.theme)
+    let color = this.canvasColorForTheme(theme)
+
+    const canvasStyle = {
+      position: 'fixed' as 'fixed',
+      bottom: '0px',
+      right: '0px',
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: color
+    }
+
+    const divStyle = {
+      backgroundColor: color,
+      padding: '8px'
     }
 
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(theme)}>
-        <div>
-          <div>
-            <Tabs>
-              <Tab label='Search' >
-                <div>
-                  {this.buildSearch()}
-                </div>
-              </Tab>
-              <Tab label='Settings' >
-                <div>
-                  {this.buildSettings()}
-                </div>
-              </Tab>
-            </Tabs>
-          </div>
-          <div>
-            <AppUpdate />
-          </div>
+      <div style = { canvasStyle }>
+      <div style = { divStyle }>
+        <Tabs>
+          <Tab label='Search' >
+            {this.buildSearch()}
+          </Tab>
+          <Tab label='Settings' >
+            {this.buildSettings()}
+          </Tab>
+        </Tabs>
+        <AppUpdate />
+        </div>
         </div>
       </MuiThemeProvider>
 
     )
+  }
+
+  private canvasColorForTheme(theme: MuiTheme): string | undefined {
+    let color: string | undefined = 'transparant'
+    if (theme.palette) {
+      color = theme.palette.canvasColor
+    }
+
+    return color
+  }
+
+  private muiThemeFromTheme(theme: ThemeType): MuiTheme {
+    let muiTheme: MuiTheme = lightBaseTheme
+
+    switch (theme) {
+    case ThemeType.Light:
+      muiTheme = lightBaseTheme
+      break
+    case ThemeType.Dark:
+      muiTheme = darkBaseTheme
+      break
+    }
+
+    return muiTheme
   }
 
   private buildSearch(): JSX.Element {
