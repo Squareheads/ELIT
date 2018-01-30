@@ -1,13 +1,17 @@
 import Analytics from 'electron-google-analytics'
 import isDev from 'electron-is-dev'
+import machineUuid from 'machine-uuid'
 
 export default class AnalyticsTracker {
   private gaTracker: Analytics
   private clientId: string
   constructor() {
 
-    this.clientId = 'fixme123'
+    this.clientId = ''
 
+    machineUuid((uuid: string) => {
+      this.clientId = uuid
+    })
     if (isDev) {
       this.gaTracker = new Analytics('UA-81511553-3')
 
@@ -23,6 +27,5 @@ export default class AnalyticsTracker {
 
   event(category: string, action: string) {
     this.gaTracker.event(category, action, { clientID: this.clientId })
-
   }
 }

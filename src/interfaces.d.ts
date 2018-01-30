@@ -359,3 +359,8 @@ declare var analyticsClass = Analytics;
 declare module 'electron-google-analytics' {
   export = analyticsClass;
 }
+declare function machineUuid(cb: ((uuid: string) => void)): void;
+
+declare module 'machine-uuid' {
+  export = machineUuid;
+}
