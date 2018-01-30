@@ -1,5 +1,6 @@
 import { ThemeType, stringToThemeType, themeTypeToString } from './ThemeType'
 import Dexie from 'dexie'
+import { ipcRenderer } from 'electron'
 
 class ThemeDatabase extends Dexie {
 
@@ -18,12 +19,10 @@ export default class ThemeManager implements IThemeManager {
 
   constructor(indexedDB?: IDBFactory, keyRange?: IDBKeyRange) {
     if (indexedDB && keyRange) {
-
       Dexie.dependencies.IDBKeyRange = keyRange
       Dexie.dependencies.indexedDB = indexedDB
-
-      this.database = new ThemeDatabase()
     }
+    this.database = new ThemeDatabase()
   }
 
   async getCurrentTheme(): Promise<ThemeType> {
@@ -49,7 +48,7 @@ export default class ThemeManager implements IThemeManager {
       const themeString = themeTypeToString(theme)
       await this.database.values.where('key').equals('current').delete()
       await this.database.values.add({ key: 'current', name: themeString })
-
+      ipcRenderer.send('theme', themeString)
     }).catch((_reason: any) => {
       /* noop */
     })

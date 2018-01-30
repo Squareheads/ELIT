@@ -39,6 +39,10 @@ app.on('browser-window-created',function(_e, window) {
   window.setMenu(null)
 })
 
+ipcMain.on('theme' , (_event: string, arg: string) => {
+  mainWindow.webContents.send('theme', arg)
+})
+
 function performAppUpdate() {
   log.debug('sending updater checking-for-update')
   autoUpdater.autoDownload = false
