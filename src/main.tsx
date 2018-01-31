@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import isDev from 'electron-is-dev'
 import { autoUpdater } from 'electron-updater'
+import { Keys } from './Keys'
+import Raven from 'raven'
 
 declare var __dirname: string
 let mainWindow: Electron.BrowserWindow
@@ -31,6 +33,10 @@ function onReady() {
       performAppUpdate()
     }, 5000)
   }
+
+  Raven.config(Keys.SentryURL, {
+    captureUnhandledRejections: true
+  }).install()
 }
 
 app.on('ready', () => onReady())

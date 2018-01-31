@@ -1,6 +1,6 @@
 import Analytics from 'electron-google-analytics'
-import isDev from 'electron-is-dev'
 import machineUuid from 'machine-uuid'
+import { Keys } from './Keys'
 
 export default class AnalyticsTracker {
   private gaTracker: Analytics
@@ -13,12 +13,7 @@ export default class AnalyticsTracker {
       this.clientId = uuid
     })
 
-    if (isDev) {
-      this.gaTracker = new Analytics('UA-81511553-3')
-
-    } else {
-      this.gaTracker = new Analytics('UA-81511553-2')
-    }
+    this.gaTracker = new Analytics(Keys.GATrackingCode)
   }
 
   trackPage(pageURL: string, pageTitle: string) {
