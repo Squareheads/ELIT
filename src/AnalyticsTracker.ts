@@ -12,6 +12,7 @@ export default class AnalyticsTracker {
     machineUuid((uuid: string) => {
       this.clientId = uuid
     })
+
     if (isDev) {
       this.gaTracker = new Analytics('UA-81511553-3')
 

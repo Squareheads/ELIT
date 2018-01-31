@@ -1,3 +1,4 @@
 export const Keys = {
-  GATrackingCode: ''
+  GATrackingCode: 'UA-81511553-3',
+  SentryURL: ''
 }
