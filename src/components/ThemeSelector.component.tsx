@@ -1,6 +1,8 @@
 import React from 'react'
-import SelectField from 'material-ui/SelectField'
-import MenuItem from 'material-ui/MenuItem'
+import Input, { InputLabel } from 'material-ui/Input'
+import { MenuItem } from 'material-ui/Menu'
+import { FormControl } from 'material-ui/Form'
+import Select from 'material-ui/Select'
 import { ThemeType, themeTypeToString } from '../ThemeType'
 
 class ThemeSelector extends React.Component<IThemeSelectorProps, IThemeSelectorState> {
@@ -23,24 +25,36 @@ class ThemeSelector extends React.Component<IThemeSelectorProps, IThemeSelectorS
     })
   }
 
-  handleChange(_event: any, index: number, _value: any) {
+  handleChange(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
+    const index = parseInt(event.target.value, undefined)
     this.setState({ index: index })
     this.themeManager.setCurrentTheme(this.state.themes[index])
+    event.preventDefault()
   }
+
   render() {
 
     const menuItems = this.state.themes.map((theme: ThemeType) => {
       const text = themeTypeToString(theme)
-      return <MenuItem value={this.state.themes.indexOf(theme)} primaryText={text} key={this.state.themes.indexOf(theme)} />
+      return <MenuItem value={this.state.themes.indexOf(theme)} key={this.state.themes.indexOf(theme)}>{text}</MenuItem>
     })
     let divStyle = {
       backgroundColor: 'transparant'
     }
     return (
       <div style = { divStyle }>
-        <SelectField floatingLabelText='Theme' value={this.state.index} onChange={this.handleChange}>
+
+        <FormControl>
+          <InputLabel htmlFor='theme-simple'>Theme</InputLabel>
+          <Select
+            value={this.state.index}
+            onChange={this.handleChange}
+            input={<Input name='theme' id='theme-simple' />}
+            autoWidth
+          >
           { menuItems }
-        </SelectField>
+          </Select>
+        </FormControl>
       </div>
     )
   }

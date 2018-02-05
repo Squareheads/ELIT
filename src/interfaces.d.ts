@@ -109,6 +109,7 @@ interface INameIDStorable {
 
 interface IAppComponentState {
   theme: ThemeType
+  tab: number
 }
 
 interface IAppComponentProps {

@@ -1,6 +1,5 @@
 import React from 'react'
-import * as colors from 'material-ui/styles/colors'
-import FlatButton from 'material-ui/FlatButton'
+import Button from 'material-ui/Button'
 import AppUpdater from '../AppUpdater'
 
 enum UpdateState {
@@ -63,7 +62,7 @@ export default class AppUpdate extends React.Component<IAppUpdateProps, IAppUpda
 
   private buildUpdateBar(): JSX.Element {
     const barStyle = {
-      backgroundColor: colors.indigo500,
+      backgroundColor: '#3F51B5', // FIXME
       position: 'fixed' as 'fixed',
       bottom: 0,
       left: 0,
@@ -97,7 +96,7 @@ export default class AppUpdate extends React.Component<IAppUpdateProps, IAppUpda
     const messageStyle = {
       paddingLeft: 32,
       paddingRight: 32,
-      color: colors.white
+      color: 'white'
     }
 
     const buttonStyle = {
@@ -112,11 +111,11 @@ export default class AppUpdate extends React.Component<IAppUpdateProps, IAppUpda
     switch (this.state.state) {
     case UpdateState.Available:
       leftContents = <p style = {messageStyle}>A new version of ELIT is available!</p>
-      rightContents = <FlatButton style={buttonStyle} onClick={this.handleUpdateButton} label='Update' backgroundColor={colors.blue500} />
+      rightContents = <Button raised style={buttonStyle} onClick={this.handleUpdateButton}>Update</Button>
       break
     case UpdateState.ReadyToInstall:
       leftContents = <p style = {messageStyle}>Update ready to install!</p>
-      rightContents = <FlatButton style={buttonStyle} onClick={this.handleInstallButton} label='Install and Relaunch' backgroundColor={colors.blue500} />
+      rightContents = <Button raised style={buttonStyle} onClick={this.handleInstallButton}>Install and Relaunch</Button>
       break
     case UpdateState.InProgress:
       leftContents = <p style = {messageStyle}>Update Downloading... { Math.round(this.state.progress) }%</p>

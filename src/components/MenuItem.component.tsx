@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import FlatButton from 'material-ui/FlatButton'
+import Button from 'material-ui/Button'
 
 export default class MenuItem extends Component<IMenuItemProps, IMenuItemState> {
   clickHandler: (() => void)
@@ -17,11 +17,11 @@ export default class MenuItem extends Component<IMenuItemProps, IMenuItemState> 
 
   render() {
 
-    let color: string
+    let color: 'primary' | 'secondary'
     if (this.state.selected) {
-      color = this.state.selectedColor
+      color = 'primary' as 'primary'
     } else {
-      color = this.state.color
+      color = 'secondary' as 'secondary'
     }
 
     let key = 'menu-button-' + this.state.text + '-' + this.state.selected
@@ -31,7 +31,7 @@ export default class MenuItem extends Component<IMenuItemProps, IMenuItemState> 
       verticalAlign: 'middle',
       height: '50px'
     }
-    return(<FlatButton key={key} style={style} onClick={this.handleClick} label={this.state.text} backgroundColor={color} />)
+    return(<Button raised key={key} style={style} onClick={this.handleClick} color={color}>{this.state.text}</Button>)
   }
 
 }

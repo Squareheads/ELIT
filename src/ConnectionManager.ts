@@ -17,7 +17,7 @@ export class ConnectionManager implements IConnectionManager {
         }
       }, function(err: any, response: any, body: any) {
 
-        if (!err && response.statusCode === 200) {
+        if (!err && response !== undefined && response.statusCode === 200) {
           resolve(body)
         } else {
           reject('get ' + URL + ' failed: ' + err + ' code ' + response.statusCode)

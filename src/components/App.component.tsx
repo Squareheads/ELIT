@@ -1,8 +1,4 @@
 import React, { Component } from 'react'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme'
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import SearchForm from './SearchForm.component'
 import SettingsForm from './SettingsForm.component'
 import AppUpdate from './AppUpdate.component'
@@ -20,9 +16,14 @@ import KillDataViewModelProvider from '../KillDataViewModelProvider'
 import CharacterAffiliationResolver from '../CharacterAffiliationResolver'
 import ZKillStatisticsFetcher from '../ZKillStatisticsFetcher'
 import { UniverseApi } from 'eve-online-esi'
-import { MuiTheme } from 'material-ui/styles'
-import { Tabs, Tab } from 'material-ui/Tabs'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Tabs, { Tab } from 'material-ui/Tabs'
 import { ipcRenderer } from 'electron'
+import { createMuiTheme, Theme } from 'material-ui/styles'
+import Paper from 'material-ui/Paper'
+// import red from 'material-ui/colors/red'
+// import cyan from 'material-ui/colors/cyan'
+// import pink from 'material-ui/colors/pink'
 
 export default class App extends Component<IAppComponentProps, IAppComponentState> {
 
@@ -32,7 +33,8 @@ export default class App extends Component<IAppComponentProps, IAppComponentStat
     super(props)
     this.themeManager = props.themeManager
     this.state = {
-      theme: ThemeType.Light
+      theme: ThemeType.Light,
+      tab: 0
     }
 
     this.themeManager.getCurrentTheme()
@@ -50,63 +52,85 @@ export default class App extends Component<IAppComponentProps, IAppComponentStat
     })
   }
 
+  handleChange = (_event: any, value: any) => {
+    this.setState({ tab: value })
+  }
+
   render() {
+    const muiTheme = this.muiThemeFromTheme(this.state.theme)
 
-    let theme: MuiTheme = this.muiThemeFromTheme(this.state.theme)
-    let color = this.canvasColorForTheme(theme)
+    let color = this.canvasColorForTheme(muiTheme)
 
-    const canvasStyle = {
-      position: 'fixed' as 'fixed',
-      bottom: '0px',
-      right: '0px',
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: color
+    const backgroundStyle = {
+      backgroundColor: color,
+      minHeight: '100vh'
     }
 
-    const divStyle = {
-      backgroundColor: color,
+    const paddedStyle = {
       padding: '8px'
     }
 
+    const tabValue = this.state.tab
+
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(theme)}>
-      <div style = { canvasStyle }>
-      <div style = { divStyle }>
-        <Tabs>
-          <Tab label='Search' >
-            {this.buildSearch()}
-          </Tab>
-          <Tab label='Settings' >
-            {this.buildSettings()}
-          </Tab>
+      <MuiThemeProvider theme={muiTheme}>
+      <div style = { backgroundStyle }>
+      <div style = { paddedStyle }>
+        <Paper>
+        <Tabs
+        fullWidth
+        centered
+         value = { tabValue }
+         onChange={this.handleChange}
+         textColor='secondary'
+         >
+          <Tab label='Search' />
+          <Tab label='Settings' />
         </Tabs>
+        </Paper>
+        {tabValue === 0 && this.buildSearch()}
+        {tabValue === 1 && this.buildSettings()}
         <AppUpdate />
         </div>
         </div>
-      </MuiThemeProvider>
+      </MuiThemeProvider >
 
     )
   }
 
-  private canvasColorForTheme(theme: MuiTheme): string | undefined {
+  private canvasColorForTheme(theme: Theme): string | undefined {
     let color: string | undefined = 'transparant'
     if (theme.palette) {
-      color = theme.palette.canvasColor
+      color = theme.palette.background.default
     }
 
     return color
   }
 
-  private muiThemeFromTheme(theme: ThemeType): MuiTheme {
-    let muiTheme: MuiTheme = lightBaseTheme
+  private darkTheme(): Theme {
+    return createMuiTheme({
+      palette: {
+        type: 'dark'
+      }
+    })
+  }
+
+  private lightTheme(): Theme {
+    return createMuiTheme({
+      palette: {
+        type: 'light'
+      }
+    })
+  }
+  private muiThemeFromTheme(theme: ThemeType): Theme {
+    let muiTheme: Theme = this.lightTheme()
 
     switch (theme) {
     case ThemeType.Light:
-      muiTheme = lightBaseTheme
+      muiTheme = this.lightTheme()
       break
     case ThemeType.Dark:
-      muiTheme = darkBaseTheme
+      muiTheme = this.darkTheme()
       break
     }
 

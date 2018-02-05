@@ -1,7 +1,8 @@
 {
   "presets": [
     "es2015-node", 
-    "react"
+    "react",
+    "stage-0"
   ],
   "env": {
     "test" : {

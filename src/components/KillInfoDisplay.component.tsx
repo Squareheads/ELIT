@@ -1,17 +1,13 @@
 
 import React, { Component } from 'react'
-import Table from 'material-ui/Table/Table'
-import TableRow from 'material-ui/Table/TableRow'
-import TableBody from 'material-ui/Table/TableBody'
-import TableHeader from 'material-ui/Table/TableHeader'
-import TableHeaderColumn from 'material-ui/Table/TableHeaderColumn'
-import TableRowColumn from 'material-ui/Table/TableRowColumn'
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table'
 import Avatar from 'material-ui/Avatar'
 import IconButton from 'material-ui/IconButton'
-import KeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
-import Popover, { PopoverAnimationVertical } from 'material-ui/Popover'
-import Menu from 'material-ui/Menu'
-import MenuItem from 'material-ui/MenuItem'
+import Popover from 'material-ui/Popover'
+import { MenuList, MenuItem } from 'material-ui/Menu'
+import { KeyboardArrowDown } from 'material-ui-icons'
+import Tooltip from 'material-ui/Tooltip'
+import { interestingDataPointDescription } from '../InterestingDataPointType'
 
 const styles = {
   tableRowImageSizeStyle:  {
@@ -29,6 +25,8 @@ const styles = {
     width: 50
   },
   numberCellStyle: {
+    paddingLeft:  '0px',
+    paddingRight: '0px',
     width: 34
   },
   nameCell: {
@@ -36,10 +34,6 @@ const styles = {
     whiteSpace: 'normal'
   },
   corpCell: {
-    width: 80,
-    whiteSpace: 'normal'
-  },
-  allianceCell: {
     width: 80,
     whiteSpace: 'normal'
   }
@@ -63,14 +57,15 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     })
 
     let divStyle = {
-      backgroundColor: 'transparant'
+      backgroundColor: 'transparant',
+      overflow: 'scroll' as 'scroll'
     }
     const popover = this.shipPopoverElement()
     return(
     <div style = { divStyle }>
-      <Table fixedHeader={true} fixedFooter={true} selectable={false} multiSelectable={false}>
+      <Table>
         { this.tableHeader() }
-        <TableBody displayRowCheckbox = {false} selectable = {false} >
+        <TableBody>
           { rows }
         </TableBody>
       </Table>
@@ -97,21 +92,20 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     .slice(0,6)
     .map((ship: IFlownShip): JSX.Element => {
       return <MenuItem key={ ship.name + '-' + ship.count }
-      primaryText={ ship.name + '(' + ship.killsWhileFlying + 'kills while flying, ' + ship.losses + 'losses)' }
-      onClick={() => this.handleNameShipPopoverClick(popoverIndex, ship)}/>
+      onClick={() => this.handleNameShipPopoverClick(popoverIndex, ship)}>
+      { ship.name + '(' + ship.killsWhileFlying + 'kills while flying, ' + ship.losses + 'losses)' }
+      </MenuItem>
     })
 
     return(
     <Popover open={ popoverOpen }
     anchorEl={ popoverAnchorEl }
     anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-    targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-    onRequestClose={this.handleRequestClose}
-    animation={PopoverAnimationVertical}>
-
-      <Menu>
+    transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+    onClose={this.handleRequestClose}>
+      <MenuList>
         { menuItems }
-      </Menu>
+      </MenuList>
     </Popover >)
   }
   private handleRequestClose(_event: any) {
@@ -149,18 +143,17 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
   private tableHeader(): JSX.Element {
 
     return (
-    <TableHeader adjustForCheckbox={false} displaySelectAll={false} enableSelectAll={false}>
+    <TableHead>
       <TableRow>
-      <TableHeaderColumn style = { styles.imageColumnStyle }></TableHeaderColumn>
-      <TableHeaderColumn style = { styles.nameCell }>Capsuleer</TableHeaderColumn>
-      <TableHeaderColumn style = { styles.corpCell }>Corporation</TableHeaderColumn>
-      <TableHeaderColumn style = { styles.corpCell }>Alliance</TableHeaderColumn>
-      <TableHeaderColumn>Recent Ships</TableHeaderColumn>
-      <TableHeaderColumn style = { styles.imageColumnStyle }>POI</TableHeaderColumn>
-      <TableHeaderColumn style = { styles.numberCellStyle }>Gang</TableHeaderColumn>
-      <TableHeaderColumn style = { styles.numberCellStyle }>Danger</TableHeaderColumn>
+      <TableCell style = { styles.imageColumnStyle }></TableCell>
+      <TableCell style = { styles.nameCell }>Capsuleer</TableCell>
+      <TableCell style = { styles.corpCell }>Affiliation</TableCell>
+      <TableCell>Recent Ships</TableCell>
+      <TableCell style = { styles.imageColumnStyle }>POI</TableCell>
+      <TableCell style = { styles.numberCellStyle }>Gang</TableCell>
+      <TableCell style = { styles.numberCellStyle }>Danger</TableCell>
       </TableRow>
-    </TableHeader>
+    </TableHead>
     )
   }
   private rowForCharacter(character: ICharacterKillDataViewModel, characterIndex: number): JSX.Element {
@@ -169,31 +162,47 @@ export default class KillInfoDisplay extends Component<IKillInfoDisplayProps, IK
     if (character.flownShips[0] && character.flownShips[0].name) {
       const recentShipNames = character.flownShips.slice(0,3).map((ship) => { return ship.name }).join(', ')
       const discloseShipButton = <IconButton id={'' + characterIndex} onClick={this.handleShipNameClick}><KeyboardArrowDown/></IconButton>
-      lastFlownShipElement = <TableRowColumn>{ discloseShipButton } { recentShipNames }</TableRowColumn>
+      lastFlownShipElement = <TableCell>{ discloseShipButton } { recentShipNames }</TableCell>
     } else {
 
       const noShipStyle = {
         fontStyle:  'italic' as 'italic',
         color: '#757575'
       }
-      lastFlownShipElement = <TableRowColumn style={ noShipStyle }>No ship data</TableRowColumn>
+      lastFlownShipElement = <TableCell style={ noShipStyle }>No ship data</TableCell>
     }
-    const image = <Avatar src={ character.characterImageURL } size = { 50 } />
+
+    const avatarStyles = {
+      character: {
+        width: 50,
+        height: 50
+      },
+      poi: {
+        width: 25,
+        height: 25
+      }
+    }
+    const image = <Avatar src={ character.characterImageURL } style = { avatarStyles.character } />
 
     const poiImages = character.interestingDataPoints.map((point) => {
-      return <Avatar key={'poiimage-' + point.type } src={ point.image } size = { 25 } />
-    })
 
+      return <Tooltip id={'poitooltip-' + point.type} key={'poitooltip-' + point.type} title= { interestingDataPointDescription(point.type) }>
+        <Avatar key={'poiimage-' + point.type } src={ point.image } style = { avatarStyles.poi } />
+      </Tooltip>
+    })
+    let affiliationText = '[' + character.corpName + ']'
+    if (character.allianceName) {
+      affiliationText += '\n' + '<' + character.allianceName + '>'
+    }
     return (
       <TableRow key = { character.id }>
-        <TableRowColumn style={ styles.tableRowImageSizeStyle }>{ image }</TableRowColumn>
-        <TableRowColumn style = { styles.nameCell }>{ character.name }</TableRowColumn>
-        <TableRowColumn style = { styles.corpCell }>{ character.corpName }</TableRowColumn>
-        <TableRowColumn style = { styles.allianceCell }>{ character.allianceName }</TableRowColumn>
+        <TableCell style={ styles.tableRowImageSizeStyle }>{ image }</TableCell>
+        <TableCell style = { styles.nameCell }>{ character.name }</TableCell>
+        <TableCell style = { styles.corpCell }>{ affiliationText }</TableCell>
         { lastFlownShipElement }
-        <TableRowColumn style = { styles.tableRowImageSizeStyle }>{ poiImages }</TableRowColumn>
-        <TableRowColumn style = { styles.numberCellStyle }>{ character.gangRatio || 0 }%</TableRowColumn>
-        <TableRowColumn style = { styles.numberCellStyle }>{ character.dangerRatio || 0 }%</TableRowColumn>
+        <TableCell style = { styles.tableRowImageSizeStyle }>{ poiImages }</TableCell>
+        <TableCell style = { styles.numberCellStyle }>{ character.gangRatio || 0 }%</TableCell>
+        <TableCell style = { styles.numberCellStyle }>{ character.dangerRatio || 0 }%</TableCell>
       </TableRow >
     )
   }

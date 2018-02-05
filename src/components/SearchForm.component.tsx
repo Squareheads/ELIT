@@ -1,6 +1,6 @@
 import React from 'react'
-import RaisedButton from 'material-ui/RaisedButton'
-import CircularProgress from 'material-ui/CircularProgress'
+import Button from 'material-ui/Button'
+import { CircularProgress } from 'material-ui/Progress'
 import TextField from 'material-ui/TextField'
 import KillInfoDisplay from './KillInfoDisplay.component'
 import AnalyticsTracker from '../AnalyticsTracker'
@@ -26,7 +26,7 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
     this.setState({ page: 'search-form' })
   }
 
-  handleTextAreaChange(event: React.FormEvent<HTMLTextAreaElement>) {
+  handleTextAreaChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ text: event.currentTarget.value, page: 'search-form' })
   }
 
@@ -68,7 +68,10 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
 
   private renderLoading() {
     const divstyle: any = {
-      height: '100vh',
+      position: 'fixed',
+      right: '0px',
+      bottom: '0px',
+      height: '100%',
       width: '100%',
       display: 'flex',
       justifyContent: 'center',
@@ -88,7 +91,7 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
     return(
     <div>
       <KillInfoDisplay key='kill-info' viewModel = { viewModel }/>
-      <RaisedButton label='Clear' secondary = {true} onClick={this.handleClear} fullWidth={true}/>
+      <Button raised color = 'secondary' onClick={this.handleClear} fullWidth={true}>Clear</Button>
     </div>
     )
   }
@@ -101,16 +104,19 @@ class SearchForm extends React.Component<ISearchFormProps, ISearchFormState> {
     }
 
     return (
-      <form onSubmit={this.handleSubmit}>
-      <TextField
-      hintText='Pilot names'
-      floatingLabelText='Paste Local here'
-      multiLine={true}
-      style={textareastyle}
-      value={this.state.text}
-      onChange={this.handleTextAreaChange}
-    />
-      <RaisedButton type='submit' label='Search' secondary = {true} fullWidth={true} />
+      <form onSubmit={this.handleSubmit} noValidate autoComplete='off'>
+        <TextField
+          id='textarea'
+          label='Paste Local here'
+          placeholder='Pilot names'
+          multiline
+          margin='normal'
+          style={textareastyle}
+          onChange={this.handleTextAreaChange}
+          value={this.state.text}
+
+        />
+      <Button raised type='submit' color='secondary' fullWidth={true}>Search</Button>
       </form>
     )
   }

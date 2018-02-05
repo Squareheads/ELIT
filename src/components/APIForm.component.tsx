@@ -1,6 +1,6 @@
 import React from 'react'
 import TextField from 'material-ui/TextField'
-import RaisedButton from 'material-ui/RaisedButton'
+import Button from 'material-ui/Button'
 import APIToken from '../APITokenModel'
 import AnalyticsTracker from '../AnalyticsTracker'
 
@@ -67,22 +67,16 @@ class APIForm extends React.Component<IAPIFormProps, IAPIToken> {
     return (
       <form onSubmit={this.handleSubmit}>
       <TextField
-      hintText='keyID'
-      floatingLabelText='Enter API Key ID'
-      floatingLabelFixed={true}
       value={this.state.keyID}
       onChange={this.handleKeyIDChange}
       />
       <br/>
      <TextField
-      hintText='verificationCode'
-      floatingLabelText='Enter API Verification Code'
-      floatingLabelFixed={true}
       value={this.state.verificationCode}
       onChange={this.handleVerificationCodeChange}
       />
       <br />
-      <RaisedButton type='submit' label='Save' />
+      <Button raised type='submit'>Save</Button>
       <br />
       </form>
     )
